@@ -1,9 +1,15 @@
-import { Link } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthProvider"
+import { useEffect, useState } from "react"
 
 
 export const Navbar = () => {
    const {auth} = useAuth() 
+   
+
+
+ 
+  
 
   return (
     <nav>

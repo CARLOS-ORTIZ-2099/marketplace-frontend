@@ -2,42 +2,40 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthProvider"
 import { instance } from "../libs/axiosConfig";
+import { useProduct } from "../context/ProductsProvider";
 
 
 export const Cart = () => {
 
   const {user} = useAuth()  
-  const [carrito, setCarrito] = useState([])  
-
+  const {showItemsCart, carrito, setCarrito} = useProduct()
 
     useEffect(() => {
         showItemsCart()   
     }, [user])
 
-    const showItemsCart = async() => {
-        const {data} = await instance.get(`/user/showCartItems`)
-        console.log(data);
-        setCarrito(data.response)
-    }
-
 
     // => 
 
     // usecallback sirve para "memorizar" una funcion y que esta no se vuelva a crear, en posteriores renderizados
-    // esto con el fin de evitar creaciones innesesarias y talvez mantener
+    // esto con el fin de evitar creaciones innecesarias y talvez mantener
     // un referencia a la funcion
     // el segundo parametro que recibe useCallback es un listado de dependencias
     // que si cambian debera de crearse nuevamente muy similar a useEffect
     // la constante updateOptions tendra como valor lo que devuelva la
-    // ejecucion de la funcion throttle esta sera otra funcion
+    // ejecucion de la funcion debounce esta sera otra funcion
+
     const updateOptions = useCallback(
-      throttle( (id, totalQuantity) => {
+
+      debounce( (id, totalQuantity) => {
         instance.put(`/user/updateCart/${id}`, { quantity: totalQuantity })
         .then(data => console.log(data))
         .catch(error => console.log(error))
          
-      }, 500),
+      }, 300),
+      
       []
+
     );
 
 
@@ -57,79 +55,62 @@ export const Cart = () => {
                     }
                   : product
           );
-  
+          // luego en el carrito actualizado buscamos aquel producto cuyo id sea 
+          // igual a el id que se le pasa como parametro a changeQuantityMore
           const product = updatedCart.find((p) => p._id === id);
-          updateOptions(id, product.quantityItem); // Enviar la cantidad total al servidor
+          // llamamos a updateOptions esta a su vez llama a nuestro servidor
+          // le pasamos como parametro el id y la nueva cantidad a actualizar del producto
+          updateOptions(id, product.quantityItem); 
           return updatedCart;
 
       });
 
     };
-
-
-    function throttle(cb, delay = 1000) {
-
-        let shouldWait = false
-        let waitingArgs
-        
-        // funcion con delay
-        const timeoutFunc = () => {
-          // despues de un tiempo corroboramos el valor de waitingArgs para ver si
-          // teien argumentos guardados inicialmente no tiene nada por lo que se cumple la condicion y cambia el valor de shouldWait a false
-          // para que el usuario pueda ejecutar nuevamente la llamada al servidor
-          // pero en el tiempo de espera el usuario puede manioular nuevamente el boton al hacerlo cambiaria el valor de waitingArgs por ende no se ejecutaria esta funcion
-          if (waitingArgs == null) {
-            shouldWait = false
-          }
-          // pero si se ejecutaria esta
-          else {
-            cb(...waitingArgs)
-            waitingArgs = null
-            setTimeout(timeoutFunc, delay)
-          }
-          
-        }
-      
-        return (...args) => {
-          
-          // aqui corroboramos que si shouldWait es true asignemos a la 
-          // variable waitingArgs los argumentos que recibe la funcion
-          // que sera un id y cantidad de producto y terminamos la funcion
-          // esto significa basicamente no ejecutes la funcion cb(que sera la llamda al servidor) hasta que 
-          // shouldwith cambie, esto para evitar llamadas innesesarias al servidor
-          if (shouldWait) {
-            waitingArgs = args
-            return
-          }
-      
-          cb(...args)
-          shouldWait = true
-          // shouldWait cambia cuando se ejecuta esta funcion, pero esta tiene
-          // un delay por lo que el cambio no ocurrira inmediatamente, esto esta bien de esa manera no hacemos tantas llamadas a nuestro servidor
-          setTimeout(timeoutFunc, delay)
     
-        }
-    
-    }
-
-    // => 
-   
-
-
-
 
     const changeQuantityLess = (id) => {
-        setCarrito(previous => ( previous.map(product => (
-            product._id == id && product.quantityItem > 1? 
-            {
-                ...product,
-                quantityItem : product.quantityItem-1,
-                total : (product.quantityItem-1)*product.priceItem 
-            } 
-            : product
 
-        )) ) )
+       setCarrito(previous => { 
+       const updatedCart = previous.map((product) => 
+          product._id == id && product.quantityItem > 1 ? 
+          {
+              ...product,
+              quantityItem : product.quantityItem-1,
+              total : (product.quantityItem-1)*product.priceItem 
+          } 
+          : product     
+        );
+          const product = updatedCart.find((p) => p._id === id);
+          updateOptions(id, product.quantityItem); 
+          return updatedCart;
+      } )
+
+
     }
+
+     
+   function debounce(cb, delay = 250) {
+  
+    let timeout
+   
+    return (...args) => {
+
+      clearTimeout(timeout)
+  
+      timeout = setTimeout(() => {
+        cb(...args)
+      }, delay)
+  
+    }
+  
+      
+  
+   }
+
+  // => 
+   
+
+    
 
   return (
     <div>

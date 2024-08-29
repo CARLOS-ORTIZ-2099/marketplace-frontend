@@ -9,6 +9,7 @@ import { Login } from './pages/Login'
 import { Navbar } from './components/Navbar'
 import { Profile } from './pages/Profile'
 import { Cart } from './pages/Cart'
+import { ProductsProvider } from './context/ProductsProvider'
 
 
 
@@ -19,17 +20,19 @@ function App() {
   return (
     <>
        <AuthProvider>
-        <BrowserRouter>
-            <Navbar/>
-            <Routes>
+        <ProductsProvider>
+          <BrowserRouter>
+              <Navbar/>
+              <Routes>
 
-                <Route path='/' element={<Home/>}/>
-                <Route path='/product-details/:id' element={<ProductDetails/>}/>
-                <Route path='/login' element={<Login/>}/>
-                <Route path='/cart' element={<Cart/>}/>
-                <Route path='/profile' element={<Profile/>}/>
-            </Routes>
-        </BrowserRouter>
+                  <Route path='/' element={<Home/>}/>
+                  <Route path='/product-details/:id' element={<ProductDetails/>}/>
+                  <Route path='/login' element={<Login/>}/>
+                  <Route path='/cart' element={<Cart/>}/>
+                  <Route path='/profile' element={<Profile/>}/>
+              </Routes>
+          </BrowserRouter>
+        </ProductsProvider>
        </AuthProvider>
        
     </>

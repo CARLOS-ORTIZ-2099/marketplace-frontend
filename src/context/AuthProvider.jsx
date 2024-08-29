@@ -5,24 +5,24 @@ import { instance } from "../libs/axiosConfig"
 
 
 export const useAuth = () => {
-    const auth = useContext(ContextProvider)
+    const auth = useContext(AuthContext)
     if(!auth) throw new Error('error exists')
     return auth    
 }
 
-const ContextProvider = createContext() // creando contexto
+const AuthContext = createContext() // creando contexto
 
 export const AuthProvider = ({children}) => {
 
     const [auth, setAuth] = useState(false) 
-    const [user, setUser] = useState({})
+    const [user, setUser] = useState({}) 
     
 
     const handlerLogin = async (body) => {
         try {
             //console.log(body);
             const {data} = await instance.post(`/auth/login`, body)
-            console.log(data);
+            //console.log(data);
             setAuth(true)
             setUser(data.user)
             //una vez que me llegue un resultado satisfactorio borrar el carrito del LS
@@ -34,12 +34,23 @@ export const AuthProvider = ({children}) => {
         
     }
 
-    const data = {auth, user, setAuth, handlerLogin}
+    const handleCloseSession = async () => {
+        try {
+            const response = await instance.post('/auth/close')
+            //console.log(response);
+            setAuth(false)
+            setUser({})
+        }catch(error) {
+            console.log(error)
+        }
+    }
+
+    const data = {auth, user, setAuth, handlerLogin, handleCloseSession}
 
   return (
-    <ContextProvider.Provider value={data}>
+    <AuthContext.Provider value={data}>
         {children}
-    </ContextProvider.Provider>
+    </AuthContext.Provider>
   )
 
 }

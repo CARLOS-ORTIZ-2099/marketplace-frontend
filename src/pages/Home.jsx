@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { instance } from "../libs/axiosConfig";
+import { useProduct } from "../context/ProductsProvider";
 
 
 export const Home = () => {
@@ -8,28 +10,26 @@ export const Home = () => {
     /* el home de la aplicacion, primero haremos una llamada a nuestra api para que nos traiga todos los productos del marketplace 
   
   */
+    const [products, setProducts] = useState([]) 
 
-    const [products, setProducts] = useState([])
-
-    const getAllProduct  =  async() => {
-        try{ 
-          const {data} = await instance.get('/product/getAll')
-          //console.log(data);
-          
-          setProducts(data.products)
-          
-          
-  
-        }catch(error) {
-          console.log(error);
-          
-        }
-    }
-  
   
     useEffect(() => {
-        getAllProduct()
+        getAllProducts()
     }, [])  
+
+    const getAllProducts  =  async() => {
+      try{ 
+        const {data} = await instance.get('/product/getAll')
+        //console.log(data);
+        
+        setProducts(data.products)  
+
+      }catch(error) {
+        console.log(error);
+        
+      }
+  }
+
 
 
   return (
