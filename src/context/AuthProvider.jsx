@@ -1,7 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react/prop-types */
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import { instance } from "../libs/axiosConfig"
-
+import jsCookie from 'js-cookie'
 
 
 export const useAuth = () => {
@@ -18,12 +19,16 @@ export const AuthProvider = ({children}) => {
     const [user, setUser] = useState({}) 
     
 
+    useEffect(() => {
+        verifyAuth()
+    }, [])
+ 
+
     const handlerLogin = async (body) => {
         try {
-            //console.log(body);
             const {data} = await instance.post(`/auth/login`, body)
-            //console.log(data);
             setAuth(true)
+            console.log(data);
             setUser(data.user)
             //una vez que me llegue un resultado satisfactorio borrar el carrito del LS
             localStorage.removeItem('cart')
@@ -32,6 +37,17 @@ export const AuthProvider = ({children}) => {
             
         }
         
+    }
+ 
+    const handlerRegister = async (body) => {
+        try {
+            const data = await instance.post(`/auth/register`, body)
+            console.log(data);
+            
+        }catch(error) {
+            console.log(error);
+            
+        }
     }
 
     const handleCloseSession = async () => {
@@ -45,7 +61,19 @@ export const AuthProvider = ({children}) => {
         }
     }
 
-    const data = {auth, user, setAuth, handlerLogin, handleCloseSession}
+
+    const verifyAuth = async() => {
+        const cookie = jsCookie.get('token-market')
+        // si la cookie existe consultar
+        if(cookie) {
+           const {data} = await instance.get(`/auth/verifyToken`) 
+           //console.log(data);
+           setAuth(true)
+           setUser(data)
+        }   
+    }
+
+    const data = {auth, user, setAuth, handlerLogin, handleCloseSession,handlerRegister}
 
   return (
     <AuthContext.Provider value={data}>

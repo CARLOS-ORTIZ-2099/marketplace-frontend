@@ -10,7 +10,7 @@ export const Profile = () => {
  
 
   useEffect(() => {
-       !auth && setRedirect('/login')
+      !auth && setRedirect('/login')
   }, [auth])
 
 
@@ -24,14 +24,13 @@ export const Profile = () => {
 
 
   const closeSession = async() => { 
-    handleCloseSession()
-    
+    handleCloseSession()    
   }
 
   return (
     <div>
         <h2>Profile</h2>
-        <button onClick={closeSession}>cerrar session</button>
+        <button onClick={closeSession}>cerrar session</button> 
     </div>
   )
 }

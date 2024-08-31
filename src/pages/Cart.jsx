@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useAuth } from "../context/AuthProvider"
 import { instance } from "../libs/axiosConfig";
 import { useProduct } from "../context/ProductsProvider";
@@ -7,23 +7,18 @@ import { useProduct } from "../context/ProductsProvider";
 
 export const Cart = () => {
 
-  const {user} = useAuth()  
+  const {auth} = useAuth()  
   const {showItemsCart, carrito, setCarrito} = useProduct()
-
+  //console.log(carrito);
+  
     useEffect(() => {
-        showItemsCart()   
-    }, [user])
+      console.log('ejecutando carrito del Cart component');  
+      if(auth) {
+        showItemsCart()  
+      }
+           
+    }, [auth])
 
-
-    // => 
-
-    // usecallback sirve para "memorizar" una funcion y que esta no se vuelva a crear, en posteriores renderizados
-    // esto con el fin de evitar creaciones innecesarias y talvez mantener
-    // un referencia a la funcion
-    // el segundo parametro que recibe useCallback es un listado de dependencias
-    // que si cambian debera de crearse nuevamente muy similar a useEffect
-    // la constante updateOptions tendra como valor lo que devuelva la
-    // ejecucion de la funcion debounce esta sera otra funcion
 
     const updateOptions = useCallback(
 
@@ -44,8 +39,6 @@ export const Cart = () => {
     const changeQuantityMore = (id) => {
 
       setCarrito((previous) => {
-        // aqui solamente modificamos la cantidad y el total del producto
-        // que coincida con id que se pase como parametro a changeQuantityMore
           const updatedCart = previous.map((product) =>
               product._id === id && product.quantityItem < product.product.quantityMax
                   ? {
@@ -55,11 +48,8 @@ export const Cart = () => {
                     }
                   : product
           );
-          // luego en el carrito actualizado buscamos aquel producto cuyo id sea 
-          // igual a el id que se le pasa como parametro a changeQuantityMore
           const product = updatedCart.find((p) => p._id === id);
-          // llamamos a updateOptions esta a su vez llama a nuestro servidor
-          // le pasamos como parametro el id y la nueva cantidad a actualizar del producto
+
           updateOptions(id, product.quantityItem); 
           return updatedCart;
 
@@ -124,9 +114,10 @@ export const Cart = () => {
                             <p>{product.name}</p>
                             <p>{product.priceItem}</p>
                             <p>{product.total}</p>
-                            <button onClick={() => changeQuantityLess(product._id)}>-</button>
+                            <button disabled={product.quantityItem <=1} 
+                             onClick={() => changeQuantityLess(product._id)}>-</button>
                             <span>{product.quantityItem}</span>
-                            <button onClick={() => changeQuantityMore(product._id)}>+</button>
+                            <button disabled={product.quantityItem >=product.product.quantityMax} onClick={() => changeQuantityMore(product._id)}>+</button>
                         </div>
                     ))
                 ) : <h2>no hay items </h2>

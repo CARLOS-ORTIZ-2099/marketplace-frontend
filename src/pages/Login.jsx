@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../context/AuthProvider"
-import { Navigate } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 
 
 export const Login = () => {
@@ -16,7 +16,7 @@ export const Login = () => {
         auth && setRedirect('/')
    }, [auth])
 
-  //console.log(handlerLogin); 
+
   const sendData = (e) => {
     e.preventDefault()
     const cart = localStorage.getItem('cart') || null
@@ -49,6 +49,9 @@ export const Login = () => {
             />
             <button type="submit" >login</button>
         </form>
+        <button>
+            <Link to={'/register'}>no tienes una cuenta? registrate</Link>
+        </button>
     </div>
   )
 }

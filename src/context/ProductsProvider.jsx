@@ -20,22 +20,29 @@ export const ProductsProvider = ({children}) => {
     const [favourites, setFavourites] = useState([])    
 
     useEffect(() => {
+        console.log('ejecutando carrito del contexto'); 
+        // en este punto si auth es true entonces el usuario ya inicio sesion y 
+        // se sincronizo el carrito local si lo tuviese con lo de la db  
+        // entonces debemos obtener esos productos 
         if(auth) {
             showItemsCart()
-            getAllUserFavourite()
+            getAllFavouriteUser() 
         }else {
-            setCarrito([])
-            
+            setCarrito([]) 
+            setFavourites([])
         }
-    } ,[auth])
+    } ,[auth]) 
  
 
-    const showItemsCart = async() => {
+    const showItemsCart = async() => { 
         try {
             // traer todos los productos del carrito de la db del usuario
             const {data} =  await instance.get(`/user/showCartItems`)
-            //console.log(data);
-            setCarrito(data.response)
+            console.log(data);
+            if(data.updateData) {
+                alert('mientras navegabas uno a mas productos de tu carrito sufrieron algunos cambios de precio y/o stock')
+            }
+            setCarrito(data.cart)
             
         }catch(error) {
             console.log(error)
@@ -43,7 +50,7 @@ export const ProductsProvider = ({children}) => {
     }
     
 
-    const getAllUserFavourite = async() => {
+    const getAllFavouriteUser = async() => {
         try {
             // traer todos los productos del carrito de la db del usuario
             const data =  await instance.get(`/user/seeAllFavoriteToUser`)

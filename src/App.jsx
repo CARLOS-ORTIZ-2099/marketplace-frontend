@@ -10,6 +10,7 @@ import { Navbar } from './components/Navbar'
 import { Profile } from './pages/Profile'
 import { Cart } from './pages/Cart'
 import { ProductsProvider } from './context/ProductsProvider'
+import { Register } from './pages/Register'
 
 
 
@@ -28,6 +29,7 @@ function App() {
                   <Route path='/' element={<Home/>}/>
                   <Route path='/product-details/:id' element={<ProductDetails/>}/>
                   <Route path='/login' element={<Login/>}/>
+                  <Route path='/register' element={<Register/>}/>
                   <Route path='/cart' element={<Cart/>}/>
                   <Route path='/profile' element={<Profile/>}/>
               </Routes>

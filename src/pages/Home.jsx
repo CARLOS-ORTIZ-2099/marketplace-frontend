@@ -7,9 +7,6 @@ import { useProduct } from "../context/ProductsProvider";
 
 export const Home = () => {
 
-    /* el home de la aplicacion, primero haremos una llamada a nuestra api para que nos traiga todos los productos del marketplace 
-  
-  */
     const [products, setProducts] = useState([]) 
 
   
@@ -17,13 +14,12 @@ export const Home = () => {
         getAllProducts()
     }, [])  
 
+    // funcion que trae todos los productos en venta del marketplace
     const getAllProducts  =  async() => {
       try{ 
         const {data} = await instance.get('/product/getAll')
-        //console.log(data);
-        
+        //console.log(data);   
         setProducts(data.products)  
-
       }catch(error) {
         console.log(error);
         
