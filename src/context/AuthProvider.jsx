@@ -15,45 +15,45 @@ const AuthContext = createContext() // creando contexto
 
 export const AuthProvider = ({children}) => {
 
-    const [auth, setAuth] = useState(false) 
-    const [user, setUser] = useState({}) 
+    // estos estados se compartiran globalmente para toda la app
+    const [auth, setAuth] = useState(false) // estado booleano que indica si el usuario esta logueado o no
+    const [user, setUser] = useState({}) // este estado contiene la informacion del usuario
     
-
+    // cada que se refresque la pagina llamaremos a verifyAuth
     useEffect(() => {
         verifyAuth()
     }, [])
  
-
-    const handlerLogin = async (body) => {
-        try {
-            const {data} = await instance.post(`/auth/login`, body)
-            setAuth(true)
-            console.log(data);
-            setUser(data.user)
-            //una vez que me llegue un resultado satisfactorio borrar el carrito del LS
-            localStorage.removeItem('cart')
-        }catch(error) {
-            console.log(error);
-            
-        }
-        
-    }
- 
+    
     const handlerRegister = async (body) => {
         try {
             const data = await instance.post(`/auth/register`, body)
             console.log(data);
             
         }catch(error) {
-            console.log(error);
-            
+            console.log(error);   
         }
     }
 
-    const handleCloseSession = async () => {
+
+
+    const handlerLogin = async (body) => {
         try {
-            const response = await instance.post('/auth/close')
-            //console.log(response);
+            const {data} = await instance.post(`/auth/login`, body) 
+            setAuth(true)
+            //console.log(data);
+            setUser(data.user)
+        }catch(error) {
+            console.log(error);    
+        }
+        
+    }
+ 
+    
+    const handlerCloseSession = async () => {
+        try {
+            const {data} = await instance.post('/auth/closeSession')
+            console.log(data);
             setAuth(false)
             setUser({})
         }catch(error) {
@@ -62,18 +62,25 @@ export const AuthProvider = ({children}) => {
     }
 
 
+    // esta funcion consultara al servidor y enviara un token si existe, si el token es valido
+    // el servidor traera los datos del usuario, para volver a setear estos estados
     const verifyAuth = async() => {
         const cookie = jsCookie.get('token-market')
         // si la cookie existe consultar
-        if(cookie) {
-           const {data} = await instance.get(`/auth/verifyToken`) 
-           //console.log(data);
-           setAuth(true)
-           setUser(data)
+        if(cookie) {    
+            try{
+                const {data} = await instance.get(`/auth/verifyToken`) 
+                //console.log(data);
+                setAuth(true)
+                setUser(data.user)
+            }catch(error){  
+                console.log(error)
+            }
+
         }   
     }
 
-    const data = {auth, user, setAuth, handlerLogin, handleCloseSession,handlerRegister}
+    const data = {auth, user, setAuth, handlerLogin, handlerCloseSession, handlerRegister}
 
   return (
     <AuthContext.Provider value={data}>

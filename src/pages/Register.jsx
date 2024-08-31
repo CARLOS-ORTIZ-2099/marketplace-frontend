@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useAuth } from "../context/AuthProvider"
-import { Link, Navigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 
 export const Register = () => {
 
-  const {handlerRegister,} = useAuth()  
+  const {handlerRegister} = useAuth()  
 
    const [email, setEmail]  = useState('') 
    const [password, setPassword]  = useState('') 
@@ -18,10 +18,6 @@ export const Register = () => {
     e.preventDefault()
     handlerRegister({email, password, name, lastName})
   }
-
-
-
-
 
 
   return (

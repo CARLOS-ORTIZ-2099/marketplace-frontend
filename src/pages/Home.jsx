@@ -2,27 +2,25 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { instance } from "../libs/axiosConfig";
-import { useProduct } from "../context/ProductsProvider";
 
 
 export const Home = () => {
 
-    const [products, setProducts] = useState([]) 
+  const [products, setProducts] = useState([]) 
 
   
-    useEffect(() => {
-        getAllProducts()
-    }, [])  
+  useEffect(() => {
+    getAllProducts()
+  }, [])   
 
-    // funcion que trae todos los productos en venta del marketplace
-    const getAllProducts  =  async() => {
-      try{ 
-        const {data} = await instance.get('/product/getAll')
-        //console.log(data);   
+  // funcion que trae todos los productos en venta del marketplace
+  const getAllProducts  =  async() => {
+      try{  
+        const {data} = await instance.get('/product/getAllProducts') 
+        console.log(data);   
         setProducts(data.products)  
       }catch(error) {
         console.log(error);
-        
       }
   }
 

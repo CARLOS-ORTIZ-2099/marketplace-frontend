@@ -13,20 +13,17 @@ export const Login = () => {
  
 
    useEffect(() => {
-        auth && setRedirect('/')
+      auth && setRedirect('/')
    }, [auth])
 
 
   const sendData = (e) => {
     e.preventDefault()
-    const cart = localStorage.getItem('cart') || null
-    handlerLogin({email, password, cart})
+    handlerLogin({email, password})
   }
 
 
   if(redirect) {
-    //console.log('cambiando');
-    
     return <Navigate to={redirect}/>
   }
 

@@ -5,27 +5,22 @@ import { Navigate } from "react-router-dom"
 
 export const Profile = () => {
  
-  const {handleCloseSession, auth} = useAuth()
+  const {handlerCloseSession, auth} = useAuth()
   const [redirect, setRedirect] = useState(null)
  
-
+ 
   useEffect(() => {
-      !auth && setRedirect('/login')
+    !auth && setRedirect('/login')
   }, [auth])
 
-
-
- if(redirect) {
-   //console.log('cambiando');
-   
+  if(redirect) {
    return <Navigate to={redirect}/>
- }
-
-
+  }
 
   const closeSession = async() => { 
-    handleCloseSession()    
+    handlerCloseSession()    
   }
+
 
   return (
     <div>
@@ -33,4 +28,5 @@ export const Profile = () => {
         <button onClick={closeSession}>cerrar session</button> 
     </div>
   )
+
 }

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {  useCallback, useEffect, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { instance } from "../libs/axiosConfig";
 import { useAuth } from "../context/AuthProvider";
 import { useProduct } from "../context/ProductsProvider";
@@ -12,53 +12,58 @@ export const ProductDetails = () => {
     const {id} = useParams()
     const [quantity, setQuantity] = useState(1)
     const [loading, setLoading] = useState(false)
-    const [product, setProduct] = useState(false)
+    const [product, setProduct] = useState({})
     const {auth, user} = useAuth()
-    const { setCarrito, favourites, setFavourites, carrito } = useProduct()
-    console.log(product);
-    console.log(carrito);
+    const { carrito, setCarrito, favourites, setFavourites } = useProduct()
+    //console.log(product);
+    //console.log(carrito);
     const navigate = useNavigate()
-
+ 
     useEffect(() => {
-        getOneProduct(id)
+        getOneProduct()  
     }, [id])
 
     // funcion que trae la info de un producto en especifico segun id de params
     const getOneProduct = async () => {
-        const {data} =  await instance.get(`/product/getOne/${id}`)
-        //console.log(data.product);
-        setProduct(data.product)
+        try {
+            const {data} =  await instance.get(`/product/getOneProduct/${id}`)
+            console.log(data);
+            setProduct(data.product)
+        }catch(error){
+            console.log(error)
+        }
     }
 
     const changeQuantityMore = () => {
         setQuantity(previous => previous >= product.quantityMax ? previous : previous+1)
     }
-
+ 
     const changeQuantityLess = () => {
         setQuantity(previous => previous <= 1 ? previous :  previous-1)
     }
 
-    const addToCart =  async() => {
+    const addToCart =  async() => { 
         // si auth es true quiere decir que estamos autenticados y debemos hacer una llamada al servidor
-        if(auth) {
-            const itemFound = carrito.find(item => item.product._id == id)  
+        if(auth) { 
+            const itemFound = carrito.find(item => item.product == id || item.product?._id == id)
+            console.log(itemFound)   
             if(itemFound && itemFound.quantityItem+quantity > product.quantityMax){
                 alert('no puedes agregar mas')
                 return
             } 
-            setLoading(true)
+            setLoading(true)  
             try {
-                const response = await instance.post(`/user/addToCart/${id}`, 
-                    { quantity}) 
-                console.log(response);
-                // despues actualizar los items de nuestro estado carrito
-                // si entra aqui se creo
-                response.status == '201'
-                ? setCarrito((previous) => [...previous, response.data.item]) 
+                const {data, status} = await instance.post(`/user/addToCart/${id}`, 
+                { quantity}) 
+                console.log(data);
+               
+                // si entra aqui el producto se creo
+                status == '201'
+                ? setCarrito((previous) => [...previous, data.item]) 
                 // si entra aqui solo se actualizo    
                 : setCarrito((previous) => (
-                    previous.map((product) => product._id == response.data.item._id 
-                        ? {...product, quantityItem : response.data.item.quantityItem, total : response.data.item.total}
+                    previous.map((product) => product._id == data.item._id 
+                        ? {...product, quantityItem : data.item.quantityItem, total : data.item.total}
                         : product   
                     )
                  ))
@@ -69,40 +74,12 @@ export const ProductDetails = () => {
                 setLoading(false)
             }
             
+        }else {
+            alert('debes iniciar sesion primero')
+            navigate('/login')
         }
-        // si no estamos autenticados lo guardamos el LS
-        else {
-           let cart = JSON.parse(localStorage.getItem('cart')) || {}
-           // si no existe lo creamos
-           if(!cart[product._id]) { 
-                console.log('no existe')
-                cart[product._id] = 
-                { 
-                  priceItem : product.price, 
-                  user : user._id, 
-                  quantityItem : quantity > product.quantityMax 
-                  ? 1 : quantity,
-                  image : product.images[0].secure_url,
-                  name : product.name,
-                  total : product.price*(quantity > product.quantityMax 
-                  ? 1 : quantity),
-                  product : product._id
-
-                } 
-                 
-           }else {
-                let res = (cart[product._id].quantity+quantity) > product.quantityMax
-                res ? alert('no puedes agregar mas') : 
-                cart[product._id] = {...cart[product._id], 
-                    quantityItem :cart[product._id].quantityItem+=quantity, 
-                    total : (cart[product._id].quantityItem) * cart[product._id].priceItem
-                }
-           }
-           console.log(cart);
-           localStorage.setItem('cart', JSON.stringify(cart)) 
-        }
-
     }
+
 
     function renderButton() {
       return  favourites.find((fv) => fv?.product == product._id) 
@@ -121,33 +98,32 @@ export const ProductDetails = () => {
                 </svg>
             </Button>
         )
-   }
+    }
  
+
    const handleFavourite = async(boolean) => {
     console.log(boolean);
-    // si es true lo eliminamos 
     if(!auth){
         navigate('/login')
         return
     }
-    
+    // si es true lo eliminamos 
     if(boolean){  
-
         setFavourites((previous) => {
             const data = previous.filter((ele) => ele.product != product._id)
             functionFavourite(product._id, {action:'eliminar'})
             return data
         })
-
     }
     // si es false lo creamos
     else {
         setFavourites((previous) =>{
-            let data = [...previous, {product :product._id}]  
+            let data = [...previous, {product : product._id}]  
             functionFavourite(product._id, {action :'crear'})
             return data
         }) 
     }
+
    }
 
 
@@ -156,18 +132,17 @@ export const ProductDetails = () => {
         .then(data => console.log(data.data))
    }, 500 ), [] )
 
-   function debounce(cb, delay) {
-
+   function debounce(cb, delay) { // => closures : funcion que retorna otra funcion, esto se hace con el fin de mantener un estado privado, donde la funcion hija recuerda el contexto donde fue definida, y por ende puede acceder a los paramteros, valores y variables de su contexto
         let time
-        return (param, body) => {
+        return (id, body) => {
 
-            clearTimeout(time)
+           clearTimeout(time)
+
            time = setTimeout(() => {
-                cb(param, body)
+                cb(id, body)
             }, delay)
 
         }
-
    }
 
 
@@ -186,8 +161,7 @@ export const ProductDetails = () => {
         {
             renderButton()
         }
-
-
+ 
         <h2> nombre : {product.name}</h2>
         <p>decsripcion: {product.description}</p>
         <p>precio : {product.price}</p>
@@ -205,6 +179,7 @@ export const ProductDetails = () => {
     </div>
   )
 }
+
 
 
 

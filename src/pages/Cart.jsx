@@ -8,30 +8,16 @@ import { useProduct } from "../context/ProductsProvider";
 export const Cart = () => {
 
   const {auth} = useAuth()  
-  const {showItemsCart, carrito, setCarrito} = useProduct()
+  const {showCartItems, carrito, setCarrito} = useProduct()
   //console.log(carrito);
   
     useEffect(() => {
       console.log('ejecutando carrito del Cart component');  
       if(auth) {
-        showItemsCart()  
+        showCartItems()  
       }
            
     }, [auth])
-
-
-    const updateOptions = useCallback(
-
-      debounce( (id, totalQuantity) => {
-        instance.put(`/user/updateCart/${id}`, { quantity: totalQuantity })
-        .then(data => console.log(data))
-        .catch(error => console.log(error))
-         
-      }, 300),
-      
-      []
-
-    );
 
 
     // al ejecutar la funcion changeQuantityMore cambiaremos nuestro estado
@@ -74,10 +60,24 @@ export const Cart = () => {
           updateOptions(id, product.quantityItem); 
           return updatedCart;
       } )
-
+ 
 
     }
 
+
+    const updateOptions = useCallback(
+
+      debounce( (id, totalQuantity) => {
+        instance.put(`/user/updateCart/${id}`, { quantity: totalQuantity })
+        .then(data => console.log(data.data))
+        .catch(error => console.log(error))
+         
+      }, 300),
+      
+      []
+
+    );
+  
      
    function debounce(cb, delay = 250) {
   

@@ -17,29 +17,30 @@ const ProductsContext = createContext() // creando contexto
 export const ProductsProvider = ({children}) => {
     const {auth} = useAuth()
     const [carrito, setCarrito] = useState([]) 
-    const [favourites, setFavourites] = useState([])    
+    const [favourites, setFavourites] = useState([])     
 
     useEffect(() => {
         console.log('ejecutando carrito del contexto'); 
         // en este punto si auth es true entonces el usuario ya inicio sesion y 
-        // se sincronizo el carrito local si lo tuviese con lo de la db  
-        // entonces debemos obtener esos productos 
+        // debemos obtener sus productos del carrito y sus favoritos
         if(auth) {
-            showItemsCart()
-            getAllFavouriteUser() 
-        }else {
-            setCarrito([]) 
-            setFavourites([])
+            showCartItems()
+            getAllUserFavourites() 
+            return 
         }
-    } ,[auth]) 
- 
 
-    const showItemsCart = async() => { 
+        setCarrito([]) 
+        setFavourites([])    
+        
+    } ,[auth]) 
+  
+
+    const showCartItems = async() => {  
         try {
             // traer todos los productos del carrito de la db del usuario
             const {data} =  await instance.get(`/user/showCartItems`)
             console.log(data);
-            if(data.updateData) {
+            if(data.shouldUpdatedCart) {
                 alert('mientras navegabas uno a mas productos de tu carrito sufrieron algunos cambios de precio y/o stock')
             }
             setCarrito(data.cart)
@@ -48,14 +49,14 @@ export const ProductsProvider = ({children}) => {
             console.log(error)
         }
     }
-    
-
-    const getAllFavouriteUser = async() => {
-        try {
+     
+  
+    const getAllUserFavourites = async() => {
+        try {  
             // traer todos los productos del carrito de la db del usuario
-            const data =  await instance.get(`/user/seeAllFavoriteToUser`)
-            //console.log(data);
-            setFavourites(data.data.favoritesFound)
+            const {data} =  await instance.get(`/user/getAllUserFavourites`)
+            console.log(data);
+            setFavourites(data.favouritesFound)
             
         }catch(error) {
             console.log(error)
@@ -64,7 +65,7 @@ export const ProductsProvider = ({children}) => {
 
 
     const data = {
-        showItemsCart,
+        showCartItems,
         carrito,
         setCarrito,
         favourites,
