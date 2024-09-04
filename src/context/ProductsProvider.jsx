@@ -33,7 +33,7 @@ export const ProductsProvider = ({children}) => {
         setFavourites([])    
         
     } ,[auth]) 
-  
+   
 
     const showCartItems = async() => {  
         try {

@@ -12,7 +12,7 @@ export const ProductDetails = () => {
     const {id} = useParams()
     const [quantity, setQuantity] = useState(1)
     const [loading, setLoading] = useState(false)
-    const [product, setProduct] = useState({})
+    const [product, setProduct] = useState(null)
     const {auth, user} = useAuth()
     const { carrito, setCarrito, favourites, setFavourites } = useProduct()
     //console.log(product);
@@ -81,8 +81,8 @@ export const ProductDetails = () => {
     }
 
 
-    function renderButton() {
-      return  favourites.find((fv) => fv?.product == product._id) 
+    function renderButton() { 
+      return  favourites.find((fv) => fv?.product._id == product._id) 
       ? (
             <Button  onClick={() => handleFavourite(true)} >
                 <svg width={'25px'} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -110,7 +110,7 @@ export const ProductDetails = () => {
     // si es true lo eliminamos 
     if(boolean){  
         setFavourites((previous) => {
-            const data = previous.filter((ele) => ele.product != product._id)
+            const data = previous.filter((ele) => ele.product._id != product._id)
             functionFavourite(product._id, {action:'eliminar'})
             return data
         })
@@ -118,7 +118,7 @@ export const ProductDetails = () => {
     // si es false lo creamos
     else {
         setFavourites((previous) =>{
-            let data = [...previous, {product : product._id}]  
+            let data = [...previous, {product : {...product}}]  
             functionFavourite(product._id, {action :'crear'})
             return data
         }) 
@@ -145,6 +145,8 @@ export const ProductDetails = () => {
         }
    }
 
+
+   if(!product) return <h3>cargando ...</h3>
 
   return (
     <div>
