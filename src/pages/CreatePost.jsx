@@ -5,12 +5,40 @@ import { instance } from "../libs/axiosConfig"
 export const CreatePost = () => {
  
   
+  const initial = {
+    name : '',
+    description : '',
+    price : '',
+    quantityMax : '',
+    category : '',
+    brand : '',
+    coin : '',
+    state : '',
+    deliveryMethod :'',
+    warranty : ''
+
+  }
+
+  const useForm = (initial) => {
+    const [formData, setFormData] = useState(initial)
+
+    const handlerChange = (e) => {
+      setFormData((previous) => ({...previous, [e.target.name] : e.target.value}))
+    }
+    return {formData, handlerChange}
+  }
+
+  const {formData, handlerChange} = useForm(initial)
+  console.log(formData)
+
 
   const [data, setData] = useState({})
   const [state, setState] = useState('')
   const [deliveryMethod, setDeliveryMethod] = useState('')
   const [warranty, setWarranty] = useState('')
   const [photos, setPhotos] = useState([])
+
+  const [error, setError] = useState({})
 
   const changeData = (e) => {
     setData(previous => ({...previous, [e.target.name] : e.target.value}))
@@ -53,14 +81,19 @@ export const CreatePost = () => {
   }
 
   
-  async function sendData(e) {
+  async function sendData(e) { 
     e.preventDefault()
-    try { 
+    // primero validar que todos los campos del formulario esten llenos
+    if(!state || !deliveryMethod || !warranty || photos.length < 1 ) {
+      return alert(`hay campos que son obligatorios`)
+    }
+    try {  
       const response = await instance.post(`/product/createProduct`,
-         {...data, state, deliveryMethod, warranty, images : photos})
+         {...data, state , deliveryMethod, warranty, images : photos})
       console.log(response)
     }catch(error) {
       console.log(error)
+      setError(error.response.data)
     }
   } 
 
@@ -114,17 +147,28 @@ export const CreatePost = () => {
         <form onSubmit={sendData}>
 
           <input type="submit" value={'send data'} />
+
+
           {/* marca producto */}
 
             { preInput('brand', 'write the real brand of the product or generic if not have brand') }
 
             <input 
               type="text" 
-              placeholder="brand" 
-              onChange={changeData}
+              placeholder="brand"
+              value={formData.brand} 
+              onChange={handlerChange}
               name="brand"
             />
             <br/>
+          {
+            error.brand && <span style={{color : 'tomato'}}>
+              {error.brand.message}
+            </span>
+          }
+
+
+
 
          {/* estado de  producto */}
 
@@ -160,6 +204,12 @@ export const CreatePost = () => {
                checked={'reacondicionado' == state}
             />
 
+          {
+            error.state && <span style={{color : 'tomato'}}>
+              {error.state.message}
+            </span>
+          }
+
 
 
 
@@ -176,16 +226,24 @@ export const CreatePost = () => {
             />
 
 
- 
+          { 
+            error.name && <span style={{color : 'tomato'}}>
+              {error.name.message}
+            </span>
+          }
 
-             {/* fotos de producto */}
+
+
+
+
+            {/* fotos de producto */}
 
             {
               preInput('photos', 'upload good photos for that the  product highlights  ')
             }
             <input 
               type="file"
-              placeholder="file" 
+              placeholder="file"  
               name="images"
               multiple
               onChange={uploadPhoto}
@@ -231,6 +289,11 @@ export const CreatePost = () => {
               }
             </div>
 
+            { 
+            error.images && <span style={{color : 'tomato'}}>
+              {error.images.message}
+            </span>
+            }
 
 
 
@@ -250,7 +313,11 @@ export const CreatePost = () => {
                 name="quantityMax" 
             />
 
-
+          { 
+            error.quantityMax && <span style={{color : 'tomato'}}>
+              {error.quantityMax.message}
+            </span>
+          }
 
 
 
@@ -265,6 +332,13 @@ export const CreatePost = () => {
             >
 
             </textarea>
+            { 
+              error.description && <span style={{color : 'tomato'}}>
+              {error.description.message}
+            </span>
+            }
+              
+
 
 
            
@@ -291,6 +365,16 @@ export const CreatePost = () => {
             />
 
 
+            { 
+              error.price && <span style={{color : 'tomato'}}>
+              {error.price.message}
+            </span>
+            }
+
+
+
+
+
               {/* categoria de producto */}
               {
                 preInput('category', 'write the category of the product')
@@ -303,6 +387,14 @@ export const CreatePost = () => {
                 <option  value="sport">sport</option>
                 <option  value="others">others</option>
               </select>
+
+              { 
+                error.category && <span style={{color : 'tomato'}}>
+                {error.category.message}
+              </span>
+              }
+
+
 
 
             {/* metodo de entrega de producto */}
@@ -331,6 +423,14 @@ export const CreatePost = () => {
             />
 
 
+              { 
+                error.deliveryMethod && <span style={{color : 'tomato'}}>
+                {error.deliveryMethod.message}
+              </span>
+              }
+
+
+
 
 
             {/* garantia de producto */}
@@ -350,6 +450,7 @@ export const CreatePost = () => {
             />
 
             <label htmlFor="garantiafabrica">garantia de fabrica</label>
+           
             <input 
                id="garantiafabrica" 
                type="checkbox"
@@ -359,6 +460,7 @@ export const CreatePost = () => {
             />  
 
             <label htmlFor="singarantia">sin garantia</label>
+
             <input 
               id="singarantia" 
               type="checkbox"
@@ -366,6 +468,12 @@ export const CreatePost = () => {
               onChange={changeWarranty} 
               checked={'sin garantia' == warranty} 
             />  
+
+            { 
+              error.warranty && <span style={{color : 'tomato'}}>
+                {error.warranty.message}
+              </span>
+            }
 
 
         </form>
