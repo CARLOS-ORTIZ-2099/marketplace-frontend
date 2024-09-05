@@ -153,8 +153,8 @@ export const ProductDetails = () => {
         <div style={{display : 'flex', gap : '1rem'}}>
             {
                 product?.images?.map(image => (
-                    <div key={image.public_id}>
-                        <img width={'250px'} src={image.secure_url} alt="" />
+                    <div key={image.public_id || image.id}>
+                        <img width={'250px'} src={image.secure_url || image.result} alt="" />
                     </div>
                 ))
             }

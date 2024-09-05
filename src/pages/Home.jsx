@@ -34,7 +34,7 @@ export const Home = () => {
           products.map((product) => (
             <div  key={product._id}>
                 <h2>{product.name}</h2>
-                <img width={'250px'} src={product?.images?.[0].secure_url}  />
+                <img width={'250px'} src={product?.images?.[0].secure_url || product.images[0].result}  />
                 <br/>
                 <button><Link to={`/product-details/${product._id}`}>ver mas</Link></button>
             </div>
