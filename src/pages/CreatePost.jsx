@@ -1,77 +1,66 @@
 import { useState } from "react"
 import { instance } from "../libs/axiosConfig"
+import { useFormFields } from "../hooks/useFormFields"
+
+
+
+
+const initial = {
+  name : '',
+  description : '',
+  price : '',
+  quantityMax : '',
+  category : '',
+  brand : '',
+  coin : '',
+  state : '',
+  deliveryMethod :'',
+  warranty : ''
+
+}
 
 
 export const CreatePost = () => {
- 
   
-  const initial = {
-    name : '',
-    description : '',
-    price : '',
-    quantityMax : '',
-    category : '',
-    brand : '',
-    coin : '',
-    state : '',
-    deliveryMethod :'',
-    warranty : ''
-
-  }
-
-  const useForm = (initial) => {
-    const [formData, setFormData] = useState(initial)
-
-    const handlerChange = (e) => {
-      setFormData((previous) => ({...previous, [e.target.name] : e.target.value}))
-    }
-    return {formData, handlerChange}
-  }
-
-  const {formData, handlerChange} = useForm(initial)
-  console.log(formData)
-
-
-  const [data, setData] = useState({})
-  const [state, setState] = useState('')
-  const [deliveryMethod, setDeliveryMethod] = useState('')
-  const [warranty, setWarranty] = useState('')
   const [photos, setPhotos] = useState([])
+  const { formData, errors, handlerChange, validateErrors, setErrors, setFormData} = useFormFields(initial)
 
-  const [error, setError] = useState({})
+  async function sendData(e) { 
+    e.preventDefault()
+    // primero validar que todos los campos del formulario esten llenos
+     let errorsObject = validateErrors()
+     //console.log(errorsObject)
 
-  const changeData = (e) => {
-    setData(previous => ({...previous, [e.target.name] : e.target.value}))
-    console.log(e.target.name, e.target.value)
-  }
-
-  const changeState = (e) => { 
-    console.log( e.target.name, e.target.checked)
-    if(state && !e.target.checked) {
-      setState('')
-      return
+    if(photos.length < 1) {
+      errorsObject = {...errorsObject, images : {message : 'selecciona almenos una imagen' } } 
     }
-    setState(e.target.name)
-  }
 
-  const changeDeliveryMethod = (e) => { 
-    console.log( e.target.name, e.target.checked)
-    if(deliveryMethod && !e.target.checked) {
-      setDeliveryMethod('')
-      return
+    if( Object.keys(errorsObject).length > 0) {
+        console.log(errorsObject)
+        setErrors(errorsObject)
+        setTimeout(() => {
+          setErrors({})
+        }, 4000);
+        return alert(`todos los campos son obligatorios`)
+        
     }
-    setDeliveryMethod(e.target.name)
-  }
-
-  const changeWarranty = (e) => { 
-    console.log( e.target.name, e.target.checked)
-    if(warranty && !e.target.checked) {
-      setWarranty('')
-      return
+    
+    try {  
+      const response = await instance.post(`/product/createProduct`, {...formData, images : photos})
+      console.log(response)
+      setFormData(initial)
+      setPhotos([])
+      alert('se creo el producto')
+    }catch(error) {
+      console.log(error)
+      alert('ocurrio un error')
+      setErrors(error.response.data)
+      setTimeout(() => {
+        setErrors({})
+      }, 4000)
     }
-    setWarranty(e.target.name)
-  }
 
+  } 
 
   function preInput(header, description) {
     return <>
@@ -81,23 +70,7 @@ export const CreatePost = () => {
   }
 
   
-  async function sendData(e) { 
-    e.preventDefault()
-    // primero validar que todos los campos del formulario esten llenos
-    if(!state || !deliveryMethod || !warranty || photos.length < 1 ) {
-      return alert(`hay campos que son obligatorios`)
-    }
-    try {  
-      const response = await instance.post(`/product/createProduct`,
-         {...data, state , deliveryMethod, warranty, images : photos})
-      console.log(response)
-    }catch(error) {
-      console.log(error)
-      setError(error.response.data)
-    }
-  } 
 
- 
   async function uploadPhoto(e) {
     const files = e.target.files;
     console.log(files)
@@ -133,11 +106,12 @@ export const CreatePost = () => {
 
   }
 
-  // aqui lo que hacemos sera posicionar la imagen que se selecciono en primer 
+
+    // aqui lo que hacemos sera posicionar la imagen que se selecciono en primer 
   // lugar y quitarla de donde estaba previamente
   function selectImageMain(file) {
-      console.log(file)
-      setPhotos([file, ...photos.filter(photo => photo.public_id != file.public_id)])
+    console.log(file)
+    setPhotos([file, ...photos.filter(photo => photo.public_id != file.public_id)])
   }
 
   return (
@@ -161,11 +135,9 @@ export const CreatePost = () => {
               name="brand"
             />
             <br/>
-          {
-            error.brand && <span style={{color : 'tomato'}}>
-              {error.brand.message}
-            </span>
-          }
+            {
+              errors.brand && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.brand.message}</p>
+            }
 
 
 
@@ -181,35 +153,32 @@ export const CreatePost = () => {
             <input 
               id="nuevo" 
               type="checkbox"
-              name="nuevo"
-              onChange={changeState}
-              checked={'nuevo' == state} 
+              name="state"
+              onChange={handlerChange}
+              checked={formData.state == 'nuevo'}
             />
 
             <label htmlFor="usado">usado</label>
             <input 
                id="usado" 
                type="checkbox"
-               name="usado"
-               onChange={changeState} 
-               checked={'usado' == state}
+               name="state"
+               onChange={handlerChange}
+               checked={formData.state == 'usado'}
             />
 
             <label htmlFor="reacondicionado">reacondicionado </label>
             <input 
                id="reacondicionado" 
                type="checkbox"
-               name="reacondicionado"
-               onChange={changeState}
-               checked={'reacondicionado' == state}
+               name="state"
+               onChange={handlerChange}
+               checked={formData.state == 'reacondicionado'}
             />
 
-          {
-            error.state && <span style={{color : 'tomato'}}>
-              {error.state.message}
-            </span>
-          }
-
+            {
+              errors.state && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.state.message}</p>
+            }
 
 
 
@@ -221,16 +190,16 @@ export const CreatePost = () => {
             <input 
                 type="text" 
                 placeholder="name" 
-                onChange={changeData}
+                onChange={handlerChange}
+                value={formData.name}
                 name="name"
             />
 
+            {
+              errors.name && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.name.message}</p>
+            }
 
-          { 
-            error.name && <span style={{color : 'tomato'}}>
-              {error.name.message}
-            </span>
-          }
+
 
 
 
@@ -248,6 +217,7 @@ export const CreatePost = () => {
               multiple
               onChange={uploadPhoto}
             />
+
 
             <div style={{display : 'flex', flexWrap : 'wrap', gap : '1rem', margin : '20px'}}>
               {
@@ -280,20 +250,17 @@ export const CreatePost = () => {
                         )
                       }
                       
-
-
                       </p>
 
                   </div>
                 ))
               }
             </div>
-
-            { 
-            error.images && <span style={{color : 'tomato'}}>
-              {error.images.message}
-            </span>
+            
+            {
+              errors.images && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.images.message}</p>
             }
+
 
 
 
@@ -309,16 +276,13 @@ export const CreatePost = () => {
                 type="number" 
                 min={1}
                 placeholder="quantityMax"
-                onChange={changeData}
-                name="quantityMax" 
+                onChange={handlerChange}
+                value={formData.quantityMax}
+                name="quantityMax"
             />
-
-          { 
-            error.quantityMax && <span style={{color : 'tomato'}}>
-              {error.quantityMax.message}
-            </span>
-          }
-
+            {
+              errors.quantityMax && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.quantityMax.message}</p>
+            }
 
 
             {/* descripcion de producto */}
@@ -327,17 +291,18 @@ export const CreatePost = () => {
             }
             <textarea 
                 placeholder="description"
-                onChange={changeData}
+                onChange={handlerChange}
+                value={formData.description}
                 name="description"
             >
 
             </textarea>
-            { 
-              error.description && <span style={{color : 'tomato'}}>
-              {error.description.message}
-            </span>
+
+            {
+              errors.description && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.description.message}</p>
             }
-              
+
+
 
 
 
@@ -349,11 +314,12 @@ export const CreatePost = () => {
               preInput('price', 'Indicate how much you want to sell the product for')
             }
 
-            <select name='coin'  onChange={changeData}>
+            <select name='coin'  onChange={handlerChange}>
+              <option  value="">coin select</option>
               <option  value="soles">S/</option>
               <option  value="dolares">US$</option>
             </select>
-
+          
             <input 
                 type="number" 
                 min={1}
@@ -361,17 +327,15 @@ export const CreatePost = () => {
                 placeholder="price"
                 //value={price}
                 //onChange={(e) => setPrice(e.target.value)}
-                onChange={changeData}
+                onChange={handlerChange}
+                value={formData.price}
             />
-
-
-            { 
-              error.price && <span style={{color : 'tomato'}}>
-              {error.price.message}
-            </span>
+            {
+              errors.coin && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{'selecciona el tipo de moneda'}</p>
             }
-
-
+            {
+              errors.price && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.price.message}</p>
+            }
 
 
 
@@ -379,7 +343,8 @@ export const CreatePost = () => {
               {
                 preInput('category', 'write the category of the product')
               }
-              <select name='category'  onChange={changeData}>
+              <select name='category'   onChange={handlerChange}>
+                <option  value="">category select</option>
                 <option  value="clothes">clothes</option>
                 <option  value="footwear">footwear</option>
                 <option  value="technology">technology</option>
@@ -388,11 +353,11 @@ export const CreatePost = () => {
                 <option  value="others">others</option>
               </select>
 
-              { 
-                error.category && <span style={{color : 'tomato'}}>
-                {error.category.message}
-              </span>
-              }
+            {
+              errors.category && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.category.message}</p>
+            }
+
+
 
 
 
@@ -407,9 +372,10 @@ export const CreatePost = () => {
             <input 
               id="delivery" 
               type="checkbox"
-              name="delivery"
-              onChange={changeDeliveryMethod} 
-              checked={'delivery' == deliveryMethod} 
+              name="deliveryMethod"
+              onChange={handlerChange}
+              checked={formData.deliveryMethod == 'delivery'} 
+              //checked={'delivery' == deliveryMethod} 
             />
 
             <label htmlFor="presencial">presencial</label>
@@ -417,17 +383,16 @@ export const CreatePost = () => {
             <input 
               id="presencial" 
               type="checkbox"
-              name="presencial"
-              onChange={changeDeliveryMethod} 
-              checked={'presencial' == deliveryMethod}  
+              name="deliveryMethod"
+              onChange={handlerChange}
+              checked={formData.deliveryMethod == 'presencial'}  
+              //checked={'presencial' == deliveryMethod}  
             />
 
+            {
+              errors.deliveryMethod && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.deliveryMethod.message}</p>
+            }
 
-              { 
-                error.deliveryMethod && <span style={{color : 'tomato'}}>
-                {error.deliveryMethod.message}
-              </span>
-              }
 
 
 
@@ -439,40 +404,40 @@ export const CreatePost = () => {
               preInput('warranty', 'Indicates the type of guarantee offered.')
             }
 
-            <label htmlFor="garantiavendedor">garantia del vendedor</label>
+            <label htmlFor="garantia-vendedor">garantia del vendedor</label>
 
             <input 
-               id="garantiavendedor" 
+               id="garantia-vendedor" 
                type="checkbox"
-               name="garantia vendedor"
-               onChange={changeWarranty} 
-               checked={'garantia vendedor' == warranty}   
+               name="warranty"
+               onChange={handlerChange} 
+               checked={ formData.warranty == 'garantia-vendedor'}   
+               //checked={'garantia vendedor' == warranty}   
             />
 
-            <label htmlFor="garantiafabrica">garantia de fabrica</label>
+            <label htmlFor="garantia-fabrica">garantia de fabrica</label>
            
             <input 
-               id="garantiafabrica" 
+               id="garantia-fabrica" 
                type="checkbox"
-               name="garantia fabrica"
-               onChange={changeWarranty} 
-               checked={'garantia fabrica' == warranty}   
+               name="warranty"
+               onChange={handlerChange} 
+               checked={ formData.warranty == 'garantia-fabrica'} 
+               //checked={'garantia fabrica' == warranty}   
             />  
 
-            <label htmlFor="singarantia">sin garantia</label>
+            <label htmlFor="sin-garantia">sin garantia</label>
 
             <input 
-              id="singarantia" 
+              id="sin-garantia" 
               type="checkbox"
-              name="sin garantia"
-              onChange={changeWarranty} 
-              checked={'sin garantia' == warranty} 
+              name="warranty"
+              onChange={handlerChange}
+              checked={ formData.warranty == 'sin-garantia'}
+              //checked={'sin garantia' == warranty} 
             />  
-
-            { 
-              error.warranty && <span style={{color : 'tomato'}}>
-                {error.warranty.message}
-              </span>
+            {
+              errors.warranty && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.warranty.message}</p>
             }
 
 

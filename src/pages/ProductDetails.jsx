@@ -169,12 +169,27 @@ export const ProductDetails = () => {
         <p>precio : {product.price}</p>
         <p>cantidad disponible:  {product.quantityMax}</p>
            <div style={{display : 'flex'}}> 
-                <button onClick={changeQuantityLess}>-</button>
-                    <p>{quantity}</p>
-                <button onClick={changeQuantityMore}>+</button>
-                <button onClick={addToCart} disabled={loading || product.quantityMax === 0}>
-                agregar al carrito
-                </button>
+                {
+                    product.seller === user._id 
+                    ? (
+                        <>
+                            <button>eliminar producto</button>
+                            <button>editar producto producto</button>
+                        </>
+                    )
+                     : (
+                        <>
+                            <button onClick={changeQuantityLess}>-</button>
+                            <p>{quantity}</p>
+                            <button onClick={changeQuantityMore}>+</button>
+                            <button onClick={addToCart} disabled={loading || product.quantityMax === 0}>
+                            agregar al carrito
+                            </button>
+                        </>
+                     )
+                }
+                
+
             </div> 
             
 
