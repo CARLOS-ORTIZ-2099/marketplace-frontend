@@ -8,7 +8,7 @@ export const NavbarProfile = () => {
             <Link to={`/profile`}> my profile</Link>
             <Link to={`/profile/myFavourites`}>favourites </Link>
             <Link to={`/profile/myPosts`}>  my posts</Link>
-            <Link to={`/profile/createPost`}> create post</Link>
+            <Link to={`/profile/formPage`}> create post</Link>
             
         </ul>
     </nav>

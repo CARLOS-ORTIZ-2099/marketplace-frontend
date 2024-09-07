@@ -1,6 +1,8 @@
-import { useState } from "react"
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react"
 import { instance } from "../libs/axiosConfig"
 import { useFormFields } from "../hooks/useFormFields"
+import { useParams } from "react-router-dom"
 
 
 const initial = {
@@ -20,8 +22,48 @@ const initial = {
 
 export const CreatePost = () => {
   
-  const [photos, setPhotos] = useState([])
+  const [photos, setPhotos] = useState([]) 
+  const [photosDelete, setPhotosDelete] = useState([]) 
   const { formData, errors, handlerChange, validateErrors, setErrors, setFormData} = useFormFields(initial)
+
+  const {id} = useParams()
+  //console.log(id)
+
+  useEffect(() => { 
+    if(id) {
+      //console.log(`hacer peticion al servidor`)
+      getOneProduct()
+    }
+  }, [id])
+
+   // funcion que trae la info de un producto en especifico segun id de params
+  const getOneProduct = async () => {
+    try {
+        const {data} =  await instance.get(`/product/getOneProduct/${id}`)
+        console.log(data);
+        //setFormData(data.product)
+        for(let key in data.product) {
+          if(key != '__v' && key != 'images' &&  key != '_id' &&  key != 'seller') {
+              setFormData((pre) => ( {...pre, [key] : data.product[key]} ))
+          }
+        }
+        setPhotos(data.product.images)
+    }catch(error){
+        console.log(error)
+    }
+  }
+
+  function preInput(header, description) {
+    return <>
+      <h2>{header}</h2>
+      <p>{description}</p>
+    </>
+  }
+
+ 
+
+
+
 
   async function sendData(e) { 
     e.preventDefault()
@@ -46,53 +88,67 @@ export const CreatePost = () => {
     // si pasamos toda la validacion lo que haremos sera enviar un formdata
     // al servidor con los datos de los imputs y las imagenes
     const newFormData = new FormData()
-   /*  console.log(formData)
-    console.log(photos) */
-    
-    let objectData = {...formData, images : [...photos]}
-    console.log(objectData);
-    
-    for(let key in objectData) { 
-        // primero corroborar si el valor iterado es un arreglo
-        // si es un arreglo entonces es el contenedor de las imagenes
-        if(Array.isArray(objectData[key])) {
-          for(let file of objectData[key] ) {
-             //console.log(newFormData.get('images'))
-             newFormData.append('images', file.file) 
-          }
-        }else {
-          newFormData.append(key, objectData[key])
-        }
-      
-    }
-
-    console.log(Object.fromEntries(newFormData))
-    try {  
-      const response = await instance.post(`/product/createProduct`, newFormData)
-      //console.log(response)
-      //setFormData(initial)
-      setPhotos([])
-      alert('se creo el producto')
-    }catch(error) {
-      console.log(error)
-      alert('ocurrio un error')
-      setErrors(error.response.data)
-      setTimeout(() => {
-        setErrors({})
-      }, 4000)
-    }
-
-  } 
-
-  function preInput(header, description) {
-    return <>
-      <h2>{header}</h2>
-      <p>{description}</p>
-    </>
-  }
-
-  
  
+    // bucle que itera los datos textuales del formulario 
+    for(let key in formData) {   
+      newFormData.append(key, formData[key])  
+    }
+    // bucle que itera el arreglo de imagenes
+    const photosRemaind = []
+    for(let photo of photos) {
+        photo.file ? newFormData.append('images', photo.file)
+        : photosRemaind.push(photo)
+    } 
+    photosDelete.length > 0 && newFormData.append('photosDelete', JSON.stringify(photosDelete))
+    console.log(photosRemaind)
+    photosRemaind.length > 0 && newFormData.append('photosRemaind', JSON.stringify(photosRemaind))
+    console.log(Object.fromEntries(newFormData))
+
+
+    // si id existe significa que estamos en modo edicion
+    if(id) {
+      console.log('go to edit') 
+      try {  
+        const {data} = await instance.put(`/product/updateProduct/${id}`, newFormData)
+        console.log(data)
+        //setFormData(initial)
+        //setPhotos([])
+        alert('se edito el producto')
+      }catch(error) {
+        console.log(error)
+        alert('ocurrio un error')
+        setErrors(error.response.data)
+        setTimeout(() => {
+          setErrors({})
+        }, 4000)
+      }
+    }
+
+    // caso contrario modo creacion
+    else {
+      try {  
+        const response = await instance.post(`/product/createProduct`, newFormData)
+        //console.log(response)
+        //setFormData(initial)
+        setPhotos([])
+        alert('se creo el producto')
+      }catch(error) {
+        console.log(error)
+        alert('ocurrio un error')
+        setErrors(error.response.data)
+        setTimeout(() => {
+          setErrors({})
+        }, 4000)
+      }
+    }
+    
+
+  }  
+
+
+ 
+
+
   async function uploadPhoto(e) {
     const files = e.target.files
     //console.log(files)
@@ -109,7 +165,7 @@ export const CreatePost = () => {
          let output = document.getElementById('imagePreview');
          output.src = reader.result;
          console.log(reader)
-      } */
+      } */ 
       // segunda forma
       reader.addEventListener('load', (event) => {
           console.log(event)
@@ -122,21 +178,35 @@ export const CreatePost = () => {
     }
     
   }
-
   // funcion que se encarga de eliminar una foto tanto de mi estado local como 
   // de cloudinary
-  async function removePhoto(e, id) {
-    setPhotos([...photos.filter(photo => photo.id !== id)]);
+  async function removePhoto(e, idPhoto) {
+
+    console.log(typeof idPhoto, idPhoto)
+    // viene de la db
+    if(typeof idPhoto.id == 'string') {
+      setPhotosDelete((previous) => ( [...previous, idPhoto] ))
+    }
+    setPhotos([...photos.filter(photo =>  {
+
+      return photo.id !== idPhoto.id      
+
+    } )]);
+
   }
 
-
-    // aqui lo que hacemos sera posicionar la imagen que se selecciono en primer 
+  // aqui lo que hacemos sera posicionar la imagen que se selecciono en primer 
   // lugar y quitarla de donde estaba previamente
   function selectImageMain(file) {
     console.log(file)
-    setPhotos([file, ...photos.filter(photo => photo.id != file.id)])
+    setPhotos([file, ...photos.filter(photo => {
+      //console.log(photo)
+      return photo.id !== file.id     
+    })])
   }
 
+  
+  
   
 
   return (
@@ -248,11 +318,13 @@ export const CreatePost = () => {
             <div style={{display : 'flex', flexWrap : 'wrap', gap : '1rem', margin : '20px'}}>
               {
                 photos.length > 0 && photos?.map((photo) => (
-                  <div key={photo.id}>
-                      <img width={'150px'} height={'150px'} src={photo.result} />
+                  <div key={photo.id || photo.public_id}>
+                      <img width={'150px'} height={'150px'} 
+                        src={photo.result || photo.secure_url} 
+                      />
                       <br/>
                       <span 
-                        onClick={(e) => removePhoto(e, photo.id)}>
+                        onClick={(e) => removePhoto(e, photo )}>
                         eliminar
                       </span>
 
@@ -268,13 +340,15 @@ export const CreatePost = () => {
                         )
                       }
                       {
-                         photo.id !== photos[0].id &&(
+                        photo.id !== photos[0].id &&(
                           <svg width={'50px'} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
                             <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
                           </svg>
                         )
                       }
+
+
                       
                       </p>
 
@@ -342,8 +416,8 @@ export const CreatePost = () => {
 
             <select name='coin'  onChange={handlerChange}>
               <option  value="">coin select</option>
-              <option  value="soles">S/</option>
-              <option  value="dolares">US$</option>
+              <option  value="soles" selected={formData.coin === 'soles'}>S/</option>
+              <option  value="dolares" selected={formData.coin === 'dolares'}>US$</option>
             </select>
           
             <input 
@@ -371,12 +445,40 @@ export const CreatePost = () => {
               }
               <select name='category'   onChange={handlerChange}>
                 <option  value="">category select</option>
-                <option  value="clothes">clothes</option>
-                <option  value="footwear">footwear</option>
-                <option  value="technology">technology</option>
-                <option  value="videogames">videogames</option>
-                <option  value="sport">sport</option>
-                <option  value="others">others</option>
+                <option  
+                  value="clothes"
+                  selected={formData.category === 'clothes'}
+                >clothes
+                </option>  
+                <option  
+                  value="footwear"
+                  selected={formData.category === 'footwear'}
+                  >footwear
+                  </option>
+                <option  
+                  value="technology"
+                  selected={formData.category === 'technology'}
+                  >   
+                  technology
+                  </option>
+                <option  
+                  value="videogames"
+                  selected={formData.category === 'videogames'}
+                  >
+                    videogames
+                </option>
+                <option  
+                  value="sport"
+                  selected={formData.category === 'sport'}
+                >
+                  sport
+                </option>
+                <option  
+                  value="others"
+                  selected={formData.category === 'others'}
+                >
+                  others
+                </option>
               </select>
 
             {

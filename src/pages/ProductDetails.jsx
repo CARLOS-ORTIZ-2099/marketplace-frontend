@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {  useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { instance } from "../libs/axiosConfig";
 import { useAuth } from "../context/AuthProvider";
 import { useProduct } from "../context/ProductsProvider";
@@ -167,14 +167,14 @@ export const ProductDetails = () => {
         <h2> nombre : {product.name}</h2>
         <p>decsripcion: {product.description}</p>
         <p>precio : {product.price}</p>
-        <p>cantidad disponible:  {product.quantityMax}</p>
+        <p>cantidad disponible:  {product.quantityMax}</p> 
            <div style={{display : 'flex'}}> 
                 {
                     product.seller === user._id 
                     ? (
                         <>
                             <button>eliminar producto</button>
-                            <button>editar producto producto</button>
+                            <button ><Link to={`/profile/formPage/${product._id}`}>editar producto producto</Link></button>
                         </>
                     )
                      : (

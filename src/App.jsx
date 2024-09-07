@@ -39,7 +39,8 @@ function App() {
                   <Route index  element={<MyProfile/>}/>
                   <Route path='/profile/myPosts' element={<MyPosts/>}/>
                   <Route path='/profile/myFavourites' element={<MyFavourites/>}/>
-                  <Route path='/profile/createPost' element={<CreatePost/>}/>
+                  <Route path='/profile/formPage' element={<CreatePost/>}/>
+                  <Route path='/profile/formPage/:id' element={<CreatePost/>}/>
                 </Route>
                 
 
