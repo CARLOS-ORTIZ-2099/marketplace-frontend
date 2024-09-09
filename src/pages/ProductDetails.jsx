@@ -127,6 +127,25 @@ export const ProductDetails = () => {
    }
 
 
+   const deleteProduct = async(id) => {
+       const confirmDelete = confirm('deseas eliminar este producto '+ id)
+       console.log(confirmDelete);
+       if(confirmDelete) {
+            try {
+            const data = await instance.delete(`/product/deleteProduct/${id}`)
+            console.log(data) 
+             if(data.status == 200) { 
+                alert('eliminado correctamnente')
+                navigate('/')
+             }
+            }catch(error) {
+                console.log(error)
+                alert('sucedio un error') 
+            }
+      }
+    }
+
+
    const functionFavourite = useCallback(debounce((idParam, body) => {
         instance.post(`/user/addToFavorite/${idParam}`, body)
         .then(data => console.log(data.data))
@@ -146,6 +165,8 @@ export const ProductDetails = () => {
    }
 
 
+
+
    if(!product) return <h3>cargando ...</h3>
 
   return (
@@ -153,8 +174,8 @@ export const ProductDetails = () => {
         <div style={{display : 'flex', gap : '1rem'}}>
             {
                 product?.images?.map(image => (
-                    <div key={image.public_id || image.id}>
-                        <img width={'250px'} src={image.secure_url || image.result} alt="" />
+                    <div key={image.public_id}>
+                        <img width={'250px'} src={image.secure_url} alt="" />
                     </div>
                 ))
             }
@@ -173,7 +194,7 @@ export const ProductDetails = () => {
                     product.seller === user._id 
                     ? (
                         <>
-                            <button>eliminar producto</button>
+                            <button onClick={() => deleteProduct(product._id)}>eliminar producto</button>
                             <button ><Link to={`/profile/formPage/${product._id}`}>editar producto producto</Link></button>
                         </>
                     )

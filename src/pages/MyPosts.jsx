@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthProvider"
 import { Link } from "react-router-dom"
 
 export const MyPosts = () => {
-  const {user} = useAuth()
+  const {user, auth} = useAuth()
   const [itemsOfuser, setItemsOfUser] = useState([])
   /* apenas carge la pagina hacer una consulta al servidor y traerme los
      post creados por el usuario autenticado
@@ -12,10 +12,9 @@ export const MyPosts = () => {
 
 
      useEffect(() => {
-       
-      getAllPostUser()
+      auth && getAllPostUser()
 
-     }, [])
+     }, [auth])
      
 
      const getAllPostUser = async () => {

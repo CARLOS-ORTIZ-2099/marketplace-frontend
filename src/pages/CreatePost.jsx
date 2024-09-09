@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { instance } from "../libs/axiosConfig"
 import { useFormFields } from "../hooks/useFormFields"
 import { useParams } from "react-router-dom"
+import { useAuth } from "../context/AuthProvider"
 
 
 const initial = {
@@ -21,8 +22,10 @@ const initial = {
 
 
 export const CreatePost = () => {
-  
-  const [photos, setPhotos] = useState([]) 
+  const {auth} = useAuth()
+  // estado que manipula las fotos
+  const [photos, setPhotos] = useState([])
+  // estado que manipula las fotos que se van a eliminar 
   const [photosDelete, setPhotosDelete] = useState([]) 
   const { formData, errors, handlerChange, validateErrors, setErrors, setFormData} = useFormFields(initial)
 
@@ -30,8 +33,8 @@ export const CreatePost = () => {
   //console.log(id)
 
   useEffect(() => { 
-    if(id) {
-      //console.log(`hacer peticion al servidor`)
+    if(id && auth) {
+      console.log(`hacer peticion al servidor`)
       getOneProduct()
     }
   }, [id])
@@ -93,15 +96,25 @@ export const CreatePost = () => {
     for(let key in formData) {   
       newFormData.append(key, formData[key])  
     }
-    // bucle que itera el arreglo de imagenes
+
+    // bucle que itera el arreglo de imagenes del estado
+    // aqui validamos si las imagenes tienen la propiedad file significa que son imagenes
+    // nuevas que se intentan guardar en el servidor, caso contrario son imagenes que ya
+    // estan guardadas en el servidor y son las que permanecen
     const photosRemaind = []
     for(let photo of photos) {
         photo.file ? newFormData.append('images', photo.file)
         : photosRemaind.push(photo)
-    } 
+    }
+    // si en el estado de fotos a eliminar hay por lo menos una foto lo mandamos al servidor
+    // para su posterior eliminacion 
     photosDelete.length > 0 && newFormData.append('photosDelete', JSON.stringify(photosDelete))
     console.log(photosRemaind)
+    // si el arreglo photosRemaind tiene por lo menos 1 imagen quiere decir que esas imagenes
+    // no se han eliminado y aun deberian conservarse en la DB
     photosRemaind.length > 0 && newFormData.append('photosRemaind', JSON.stringify(photosRemaind))
+
+
     console.log(Object.fromEntries(newFormData))
 
 
@@ -160,13 +173,6 @@ export const CreatePost = () => {
       reader.readAsDataURL(files[i]);
 
       // se activa cuando una lectura de archivo se completo correctamente
-      // primera forma
-      /* reader.onload = function () {
-         let output = document.getElementById('imagePreview');
-         output.src = reader.result;
-         console.log(reader)
-      } */ 
-      // segunda forma
       reader.addEventListener('load', (event) => {
           console.log(event)
           //console.log(`${event.type}: ${event.loaded} bytes transferred\n`)
@@ -178,15 +184,23 @@ export const CreatePost = () => {
     }
     
   }
+
   // funcion que se encarga de eliminar una foto tanto de mi estado local como 
   // de cloudinary
   async function removePhoto(e, idPhoto) {
-
+    // recordar que para todas las imagenes tenemos un campo en comun id
+    // para poder manipular las imagenes uniformemente independientemente de 
+    // que si viene del servidor o del local
+    // las imagens que vienen del servidor tendra un id marketplace/m0gnehanlogx4koswn4f que es un string
+    // mientras que las imagenes que vienen del local tendran un id en timeStamp que es un number
     console.log(typeof idPhoto, idPhoto)
-    // viene de la db
+    // si se cumple viene de la db y lo guardamos en el estado que enviara 
+    // al servidor para su posterior eliminacion en cloudinary
     if(typeof idPhoto.id == 'string') {
       setPhotosDelete((previous) => ( [...previous, idPhoto] ))
     }
+    // independientemente de que si la foto viene del servidor o es una nueva
+    // que viene del local lo quitamos del arreglo del estado de fotos
     setPhotos([...photos.filter(photo =>  {
 
       return photo.id !== idPhoto.id      

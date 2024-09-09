@@ -34,7 +34,7 @@ function App() {
                 <Route path='/product-details/:id' element={<ProductDetails/>}/>
                 <Route path='/cart' element={<Cart/>}/>
                 
-              
+                {/* rutas protegidas */}
                 <Route path='/profile' element={<Profile/>}>
                   <Route index  element={<MyProfile/>}/>
                   <Route path='/profile/myPosts' element={<MyPosts/>}/>

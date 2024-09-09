@@ -3,6 +3,7 @@ import { useCallback, useEffect } from "react";
 import { useAuth } from "../context/AuthProvider"
 import { instance } from "../libs/axiosConfig";
 import { useProduct } from "../context/ProductsProvider";
+import { Link } from "react-router-dom";
 
 
 export const Cart = () => {
@@ -12,7 +13,7 @@ export const Cart = () => {
   //console.log(carrito);
   
     useEffect(() => {
-      console.log('ejecutando carrito del Cart component');  
+      console.log('carrito actualizado');  
       if(auth) {
         showCartItems()  
       }
@@ -97,8 +98,33 @@ export const Cart = () => {
   
    }
 
-  // => 
+   const removeCartProduct = async (id) => {
+      try {
+      const response = await instance.delete(`/user/removeCartProduct/${id}`)
+      console.log(response)
+
+      setCarrito( carrito.filter((previous) => (
+        previous._id !== id
+      )) )
+
+      }catch(error) {
+        console.log(error)
+      }
+   }  
    
+   const buyTheOrder = async (id) => {
+    try {
+      const response = await instance.delete(`/user/buyTheOrder/${id}`)
+      console.log(response)
+
+      setCarrito( carrito.filter((previous) => (
+        previous._id !== id
+      )) )
+
+      }catch(error) {
+        console.log(error)
+      }
+   }
 
     
 
@@ -118,6 +144,13 @@ export const Cart = () => {
                              onClick={() => changeQuantityLess(product._id)}>-</button>
                             <span>{product.quantityItem}</span>
                             <button disabled={product.quantityItem >=product.product.quantityMax} onClick={() => changeQuantityMore(product._id)}>+</button>
+                            <br/>
+                            <button><Link to={`/product-details/${product.product._id}`}>see more</Link></button>
+
+                            <button onClick={() => removeCartProduct(product._id)}>eliminar</button>
+
+                            <button onClick={() => buyTheOrder(product._id)}>comprar</button>
+
                         </div>
                     ))
                 ) : <h2>no hay items </h2>

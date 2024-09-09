@@ -20,7 +20,7 @@ export const ProductsProvider = ({children}) => {
     const [favourites, setFavourites] = useState([])     
 
     useEffect(() => {
-        //console.log('ejecutando carrito del contexto'); 
+        console.log('ejecutando carrito del contexto'); 
         // en este punto si auth es true entonces el usuario ya inicio sesion y 
         // debemos obtener sus productos del carrito y sus favoritos
         if(auth) {
@@ -50,12 +50,12 @@ export const ProductsProvider = ({children}) => {
         }
     }
      
-  
+   
     const getAllUserFavourites = async() => {
         try {  
             // traer todos los productos del carrito de la db del usuario
             const {data} =  await instance.get(`/user/getAllUserFavourites`)
-            //console.log(data);
+            console.log(data);
             setFavourites(data.favouritesFound)
             
         }catch(error) {
@@ -69,7 +69,8 @@ export const ProductsProvider = ({children}) => {
         carrito,
         setCarrito,
         favourites,
-        setFavourites
+        setFavourites,
+        getAllUserFavourites
     }
 
   return (
