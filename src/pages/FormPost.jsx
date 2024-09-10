@@ -21,7 +21,7 @@ const initial = {
 }
 
 
-export const CreatePost = () => {
+export const FormPost = () => {
   const {auth} = useAuth()
   // estado que manipula las fotos
   const [photos, setPhotos] = useState([])

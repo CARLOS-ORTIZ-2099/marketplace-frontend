@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { instance } from "../libs/axiosConfig";
+import { Box, Flex } from "@chakra-ui/react";
+import { ProductCard } from "../components/ProductCard";
 
 
 export const Home = () => {
 
   const [products, setProducts] = useState([]) 
 
-  
   useEffect(() => {
     getAllProducts()
   }, [])   
@@ -17,7 +17,7 @@ export const Home = () => {
   const getAllProducts  =  async() => {
       try{  
         const {data} = await instance.get('/product/getAllProducts') 
-        console.log(data);   
+        //console.log(data);   
         setProducts(data.products)  
       }catch(error) {
         console.log(error);
@@ -25,22 +25,25 @@ export const Home = () => {
   }
 
 
-
   return (
     <div>
-        <h1>welcome to home</h1>
-       <div style={{display:'flex', gap:'1rem'} }>
+
+       <Flex 
+        align={'center'} 
+        justify={'space-around'} 
+        wrap={'wrap'}
+        gap={'1.5rem'}
+       >
        {
-          products.map((product) => (
-            <div  key={product._id}>
-                <h2>{product.name}</h2>
-                <img width={'250px'} src={product?.images?.[0].secure_url}  />
-                <br/>
-                <button><Link to={`/product-details/${product._id}`}>ver mas</Link></button>
-            </div>
-          ))
+         products.length > 0 ? 
+         products.map((product) => (
+              <ProductCard key={product._id}
+                product={product}
+              />
+         ))
+         : <h1>no hay productos aun, se el primero en publicar algo</h1>
        }
-       </div>
+       </Flex>
        
     </div>
   )

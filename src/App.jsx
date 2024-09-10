@@ -1,7 +1,7 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-import './App.css'
+/* import './App.css' */
 import { Home } from './pages/Home'
 import { ProductDetails } from './pages/ProductDetails'
 import { AuthProvider } from './context/AuthProvider'
@@ -13,7 +13,7 @@ import { ProductsProvider } from './context/ProductsProvider'
 import { Register } from './pages/Register'
 import { MyPosts } from './pages/MyPosts'
 import { MyFavourites } from './pages/MyFavourites'
-import { CreatePost } from './pages/CreatePost'
+import { FormPost } from './pages/FormPost'
 import { MyProfile } from './pages/MyProfile'
 
 
@@ -39,8 +39,8 @@ function App() {
                   <Route index  element={<MyProfile/>}/>
                   <Route path='/profile/myPosts' element={<MyPosts/>}/>
                   <Route path='/profile/myFavourites' element={<MyFavourites/>}/>
-                  <Route path='/profile/formPage' element={<CreatePost/>}/>
-                  <Route path='/profile/formPage/:id' element={<CreatePost/>}/>
+                  <Route path='/profile/formPage' element={<FormPost/>}/>
+                  <Route path='/profile/formPage/:id' element={<FormPost/>}/>
                 </Route>
                 
 
