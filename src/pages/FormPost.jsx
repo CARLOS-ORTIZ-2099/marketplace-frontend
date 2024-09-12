@@ -30,7 +30,6 @@ export const FormPost = () => {
   const { formData, errors, handlerChange, validateErrors, setErrors, setFormData} = useFormFields(initial)
 
   const {id} = useParams()
-  //console.log(id)
 
   useEffect(() => { 
     if(id && auth) {
@@ -39,12 +38,9 @@ export const FormPost = () => {
     }
   }, [id])
 
-   // funcion que trae la info de un producto en especifico segun id de params
   const getOneProduct = async () => {
     try {
         const {data} =  await instance.get(`/product/getOneProduct/${id}`)
-        console.log(data);
-        //setFormData(data.product)
         for(let key in data.product) {
           if(key != '__v' && key != 'images' &&  key != '_id' &&  key != 'seller') {
               setFormData((pre) => ( {...pre, [key] : data.product[key]} ))
@@ -64,10 +60,6 @@ export const FormPost = () => {
   }
 
  
-
-
-
-
   async function sendData(e) { 
     e.preventDefault()
     // primero validar que todos los campos del formulario esten llenos
@@ -88,8 +80,6 @@ export const FormPost = () => {
         
     }
     
-    // si pasamos toda la validacion lo que haremos sera enviar un formdata
-    // al servidor con los datos de los imputs y las imagenes
     const newFormData = new FormData()
  
     // bucle que itera los datos textuales del formulario 
@@ -159,9 +149,6 @@ export const FormPost = () => {
   }  
 
 
- 
-
-
   async function uploadPhoto(e) {
     const files = e.target.files
     //console.log(files)
@@ -174,9 +161,6 @@ export const FormPost = () => {
 
       // se activa cuando una lectura de archivo se completo correctamente
       reader.addEventListener('load', (event) => {
-          console.log(event)
-          //console.log(`${event.type}: ${event.loaded} bytes transferred\n`)
-          //console.log(reader.result)
           setPhotos((previous) => [...previous, {file : files[i], result : reader.result, id : event.timeStamp}])
 
       } )
@@ -185,22 +169,14 @@ export const FormPost = () => {
     
   }
 
-  // funcion que se encarga de eliminar una foto tanto de mi estado local como 
-  // de cloudinary
+
   async function removePhoto(e, idPhoto) {
-    // recordar que para todas las imagenes tenemos un campo en comun id
-    // para poder manipular las imagenes uniformemente independientemente de 
-    // que si viene del servidor o del local
-    // las imagens que vienen del servidor tendra un id marketplace/m0gnehanlogx4koswn4f que es un string
-    // mientras que las imagenes que vienen del local tendran un id en timeStamp que es un number
-    console.log(typeof idPhoto, idPhoto)
-    // si se cumple viene de la db y lo guardamos en el estado que enviara 
-    // al servidor para su posterior eliminacion en cloudinary
+
+
     if(typeof idPhoto.id == 'string') {
       setPhotosDelete((previous) => ( [...previous, idPhoto] ))
     }
-    // independientemente de que si la foto viene del servidor o es una nueva
-    // que viene del local lo quitamos del arreglo del estado de fotos
+
     setPhotos([...photos.filter(photo =>  {
 
       return photo.id !== idPhoto.id      
@@ -209,12 +185,9 @@ export const FormPost = () => {
 
   }
 
-  // aqui lo que hacemos sera posicionar la imagen que se selecciono en primer 
-  // lugar y quitarla de donde estaba previamente
+
   function selectImageMain(file) {
-    console.log(file)
     setPhotos([file, ...photos.filter(photo => {
-      //console.log(photo)
       return photo.id !== file.id     
     })])
   }

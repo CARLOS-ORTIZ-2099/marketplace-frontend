@@ -3,26 +3,22 @@ import { useCallback, useEffect } from "react";
 import { useAuth } from "../context/AuthProvider"
 import { instance } from "../libs/axiosConfig";
 import { useProduct } from "../context/ProductsProvider";
-import { Link } from "react-router-dom";
+import { TemplateCarritoProduct } from "../components/TemplateCarritoProduct";
+import { CartEmpty } from "./CartEmpty";
 
 
 export const Cart = () => {
 
   const {auth} = useAuth()  
   const {showCartItems, carrito, setCarrito} = useProduct()
-  //console.log(carrito);
   
     useEffect(() => {
       console.log('carrito actualizado');  
       if(auth) {
         showCartItems()  
-      }
-           
+      }     
     }, [auth])
 
-
-    // al ejecutar la funcion changeQuantityMore cambiaremos nuestro estado
-    // setCarrito
     const changeQuantityMore = (id) => {
 
       setCarrito((previous) => {
@@ -94,15 +90,11 @@ export const Cart = () => {
   
     }
   
-      
-  
    }
 
    const removeCartProduct = async (id) => {
       try {
       const response = await instance.delete(`/user/removeCartProduct/${id}`)
-      console.log(response)
-
       setCarrito( carrito.filter((previous) => (
         previous._id !== id
       )) )
@@ -114,9 +106,7 @@ export const Cart = () => {
    
    const buyTheOrder = async (id) => {
     try {
-      const response = await instance.delete(`/user/buyTheOrder/${id}`)
-      console.log(response)
-
+      await instance.delete(`/user/buyTheOrder/${id}`)
       setCarrito( carrito.filter((previous) => (
         previous._id !== id
       )) )
@@ -127,35 +117,15 @@ export const Cart = () => {
    }
 
     
-
   return (
-    <div>
-        <h2>Cart</h2>
-       <div style={{display : 'flex', gap : '1rem'}}>
-        {
-                carrito?.length > 0 ? (
-                    carrito.map(product => (
-                        <div style={{border : 'solid coral 1px'}} key={product._id}>
-                            <img width={'100px'} height={'80px'} src={product.image} alt="" />
-                            <p>{product.name}</p>
-                            <p>{product.priceItem}</p>
-                            <p>{product.total}</p>
-                            <button disabled={product.quantityItem <=1} 
-                             onClick={() => changeQuantityLess(product._id)}>-</button>
-                            <span>{product.quantityItem}</span>
-                            <button disabled={product.quantityItem >=product.product.quantityMax} onClick={() => changeQuantityMore(product._id)}>+</button>
-                            <br/>
-                            <button><Link to={`/product-details/${product.product._id}`}>see more</Link></button>
-
-                            <button onClick={() => removeCartProduct(product._id)}>eliminar</button>
-
-                            <button onClick={() => buyTheOrder(product._id)}>comprar</button>
-
-                        </div>
-                    ))
-                ) : <h2>no hay items </h2>
-            }
-       </div>
-    </div>
+    <>
+      {
+        carrito.length > 0
+        ? <TemplateCarritoProduct carrito={carrito} 
+            funciones={{changeQuantityLess, changeQuantityMore, removeCartProduct, buyTheOrder}}
+          />
+        : <CartEmpty/>
+      }
+    </>
   )
 }

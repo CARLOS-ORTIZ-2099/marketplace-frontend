@@ -1,52 +1,39 @@
 import { useEffect, useState } from "react"
 import {instance} from '../libs/axiosConfig'
 import { useAuth } from "../context/AuthProvider"
-import { Link } from "react-router-dom"
+import { Box } from "@chakra-ui/react"
+import { ProductCard } from "../components/ProductCard"
 
 export const MyPosts = () => {
   const {user, auth} = useAuth()
   const [itemsOfuser, setItemsOfUser] = useState([])
-  /* apenas carge la pagina hacer una consulta al servidor y traerme los
-     post creados por el usuario autenticado
-  */
 
-
-     useEffect(() => {
+    useEffect(() => {
       auth && getAllPostUser()
 
-     }, [auth])
+    }, [auth])
      
-
      const getAllPostUser = async () => {
        try{
         const {data} = await instance.get(`/product/getAllProducts/${user._id}`)
-        console.log(data);
         setItemsOfUser(data.products)
        }catch(error){
         console.log(error)
-       }
-        
+       }    
     }
 
   return (
-    <div>
-        <h1>MyPosts</h1>
-        <div>
-            {
-              itemsOfuser.length > 0 
-              ? (
-                  itemsOfuser.map((item) => (
-                    <div  key={item._id}>
-                      <h2>{item.name}</h2>
-                      <img width={'250px'} src={item?.images?.[0].secure_url}  />
-                      <br/>
-                      <button><Link to={`/product-details/${item._id}`}>ver mas</Link></button>
-                    </div>
-                  ))
-                )
-              : (<h3>sin productos</h3>) 
-            }
-        </div>
-    </div>
+    <Box display={'flex'} justifyContent={'space-around'} mt={'5'} gap={'5'} flexWrap={'wrap'}>
+      {
+        itemsOfuser.length > 0 
+        ? (
+            itemsOfuser.map((item) => (
+              <ProductCard key={item._id} product={item}/>
+            ))
+          )
+        : (<h3>sin productos</h3>) 
+      }
+       
+    </Box>
   )
 }

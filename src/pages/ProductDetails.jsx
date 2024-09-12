@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthProvider";
 import { useProduct } from "../context/ProductsProvider";
 import { ProductGallery } from "../components/ProductGallery";
 import { ProductData } from "../components/ProductData";
-
+import {Container, Spinner } from "@chakra-ui/react";
 
 export const ProductDetails = () => {
  
@@ -16,19 +16,15 @@ export const ProductDetails = () => {
     const [product, setProduct] = useState(null)
     const {auth} = useAuth()
     const { carrito, setCarrito, setFavourites } = useProduct()
-    //console.log(product);
-    //console.log(carrito);
     const navigate = useNavigate()
  
     useEffect(() => {
         getOneProduct()  
     }, [id])
 
-    // funcion que trae la info de un producto en especifico segun id de params
     const getOneProduct = async () => {
         try {
             const {data} =  await instance.get(`/product/getOneProduct/${id}`)
-            console.log(data);
             setProduct(data.product)
         }catch(error){
             console.log(error)
@@ -40,10 +36,8 @@ export const ProductDetails = () => {
     const changeQuantityLess = () => setQuantity(previous => previous <= 1 ? previous :  previous-1)
 
    const addToCart =  async() => { 
-        // si auth es true quiere decir que estamos autenticados y debemos hacer una llamada al servidor
         if(auth) { 
             const itemFound = carrito.find(item => item.product == id || item.product?._id == id)
-            console.log(itemFound)   
             if(itemFound && itemFound.quantityItem+quantity > product.quantityMax){
                 alert('no puedes agregar mas')
                 return
@@ -51,20 +45,16 @@ export const ProductDetails = () => {
             setLoading(true)  
             try {
                 const {data, status} = await instance.post(`/user/addToCart/${id}`, 
-                { quantity}) 
-                console.log(data);
-               
-                // si entra aqui el producto se creo
+                { quantity})   
                 status == '201'
-                ? setCarrito((previous) => [...previous, data.item]) 
-                // si entra aqui solo se actualizo    
+                ? setCarrito((previous) => [...previous, data.item])   
                 : setCarrito((previous) => (
                     previous.map((product) => product._id == data.item._id 
                         ? {...product, quantityItem : data.item.quantityItem, total : data.item.total}
                         : product   
                     )
                  ))
-
+                alert('agregado al carrito')
                 setLoading(false)
             }catch(error) {
                 console.log(error)
@@ -83,7 +73,6 @@ export const ProductDetails = () => {
         navigate('/login')
         return
     }
-    // si es true lo eliminamos 
     if(boolean){  
         setFavourites((previous) => {
             const data = previous.filter((ele) => ele.product._id != product._id)
@@ -91,7 +80,6 @@ export const ProductDetails = () => {
             return data
         })
     }
-    // si es false lo creamos
     else {
         setFavourites((previous) =>{
             let data = [...previous, {product : {...product}}]  
@@ -104,15 +92,13 @@ export const ProductDetails = () => {
 
    const deleteProduct = async(id) => {
        const confirmDelete = confirm('deseas eliminar este producto '+ id)
-       console.log(confirmDelete);
        if(confirmDelete) {
             try {
-            const data = await instance.delete(`/product/deleteProduct/${id}`)
-            console.log(data) 
-             if(data.status == 200) { 
-                alert('eliminado correctamnente')
-                navigate('/')
-             }
+            const data = await instance.delete(`/product/deleteProduct/${id}`) 
+                if(data.status == 200) { 
+                    alert('eliminado correctamente')
+                    navigate('/')
+                }
             }catch(error) {
                 console.log(error)
                 alert('sucedio un error') 
@@ -126,7 +112,7 @@ export const ProductDetails = () => {
         .then(data => console.log(data.data))
    }, 500 ), [] )
 
-   function debounce(cb, delay) { // => closures : funcion que retorna otra funcion, esto se hace con el fin de mantener un estado privado, donde la funcion hija recuerda el contexto donde fue definida, y por ende puede acceder a los paramteros, valores y variables de su contexto
+   function debounce(cb, delay) { 
         let time
         return (id, body) => {
 
@@ -140,10 +126,19 @@ export const ProductDetails = () => {
    }
 
 
-   if(!product) return <h3>cargando ...</h3>
+   if(!product) return <Spinner
+        thickness='4px'
+        speed='0.65s'
+        emptyColor='gray.200'
+        color='#2e7d8c'
+        size='xl'
+        display={'block'}
+        mx={'auto'}
+    />
 
   return (
-    <div>
+    <Container maxW={{base : '100%', sm : '70%'}} display={'flex'} flexDirection={{base : 'column', lg : 'row'}} p={{base : '1', lg : '10'}} flexWrap={'wrap'} >
+
         <ProductGallery images={product.images}/>
 
         <ProductData 
@@ -157,7 +152,7 @@ export const ProductDetails = () => {
             handleFavourite={handleFavourite}
         />
 
-    </div>
+    </Container>
   )
 }
 

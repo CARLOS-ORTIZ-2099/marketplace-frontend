@@ -37,8 +37,9 @@ function App() {
                 {/* rutas protegidas */}
                 <Route path='/profile' element={<Profile/>}>
                   <Route index  element={<MyProfile/>}/>
-                  <Route path='/profile/myPosts' element={<MyPosts/>}/>
                   <Route path='/profile/myFavourites' element={<MyFavourites/>}/>
+                  <Route path='/profile/myPosts' element={<MyPosts/>}/>
+                  
                   <Route path='/profile/formPage' element={<FormPost/>}/>
                   <Route path='/profile/formPage/:id' element={<FormPost/>}/>
                 </Route>

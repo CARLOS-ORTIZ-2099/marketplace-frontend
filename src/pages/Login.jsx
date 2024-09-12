@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../context/AuthProvider"
 import { Link, Navigate } from "react-router-dom"
+import { Box, Button, FormLabel, Input, Text } from "@chakra-ui/react"
 
 
 export const Login = () => {
@@ -23,32 +24,34 @@ export const Login = () => {
   }
 
 
-  if(redirect) {
-    return <Navigate to={redirect}/>
-  }
-
-
-
+  if(redirect) return <Navigate to={redirect}/>
 
 
 
   return (
-    <div>
-        <h2>Login</h2>
-        <form  onSubmit={sendData}>
-            <input type="email"  placeholder="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input type="text" placeholder="password" 
-                value={password}
-                 onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="submit" >login</button>
-        </form>
-        <button>
-            <Link to={'/register'}>no tienes una cuenta? registrate</Link>
-        </button>
-    </div>
+    <Box display={'flex'} justifyContent={'center'} alignItems={'center'}  minH={'70vh'}>
+      <Box  w={{base : '90%', sm : '450px'}} >
+        <Text fontSize={{base : '3xl', lg : '5xl'}}>Login</Text>
+
+        <Box as="form" onSubmit={sendData} >
+           
+          <FormLabel>Email address</FormLabel>
+          <Input  type='email' placeholder="email" borderRadius={'18'} value={email} onChange={(e) => setEmail(e.target.value)}/>
+             
+    
+          <FormLabel>password</FormLabel>
+          <Input type='text' placeholder="password" borderRadius={'18'} value={password}  onChange={(e) => setPassword(e.target.value)}/>
+        
+
+          <Button type="submit" colorScheme="teal" my={'5'} width={'100%'} borderRadius={'18'}>
+              login
+          </Button>
+
+        </Box>
+          
+        <Link to={'/register'}>no tienes una cuenta? registrate</Link>
+           
+      </Box>
+    </Box>
   )
 }

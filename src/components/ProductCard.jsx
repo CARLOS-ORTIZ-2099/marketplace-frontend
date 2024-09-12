@@ -3,35 +3,28 @@ import { Box, Button, Card, CardBody, CardFooter, Divider, Heading, Image, Stack
 import { Link } from "react-router-dom"
 
 
-export const ProductCard = ({product}) => {
-    console.log(product);
+export const ProductCard = ({product , handleFavourite = null, index = null}) => {
     
   return (
-    <Box /* border={'solid red 2px'} */>
+    <Box boxShadow='xl' rounded='md' bg='white'>
         <Card maxW='sm'>
 
             <CardBody>
-                <Image
-                    src={product?.images?.[0].secure_url}
+                <Image src={product?.images?.[0].secure_url} 
                     alt='product'
                     borderRadius='lg'
                     height={'200px'}
+                    width={'300px'}
+                    loading="lazy"
                 />
 
                 <Stack mt='6' spacing='3'>
-
                     <Heading size='md'>{product.brand}</Heading>
                     <Text>{product.name}</Text>
-                    {/* importador */}
                     <Text color='blue.600' fontSize='2xl'>
-                        {
-                            product.coin === 'soles' 
-                            ? 'S/' 
-                            : '$'
-                        } 
+                        { product.coin === 'soles' ? 'S/' : '$'} 
                         {product.price}
-                    </Text>
-                    
+                    </Text>   
                 </Stack>
 
             </CardBody>
@@ -39,11 +32,19 @@ export const ProductCard = ({product}) => {
             <Divider/>
 
             <CardFooter>
-                <Button mx={'auto'} variant='solid' colorScheme='blue'>
+                <Button mx={'auto'} variant='solid' colorScheme='teal'>
                    <Link to={`/product-details/${product._id}`}>
-                   see more
+                        see more
                    </Link>
                 </Button>
+                {
+                    handleFavourite && 
+                    <Button colorScheme="red" 
+                        onClick={() => handleFavourite(product, index)}
+                    >
+                        eliminar de favoritos
+                    </Button>
+                }
             </CardFooter>
             
         </Card>
