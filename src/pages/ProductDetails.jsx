@@ -19,22 +19,22 @@ export const ProductDetails = () => {
     const { carrito, setCarrito, setFavourites } = useProduct()
     const navigate = useNavigate()
  
-    useEffect(() => {
+   useEffect(() => {
         getOneProduct()  
-    }, [id])
+   }, [id])
 
-    const getOneProduct = async () => {
+   const getOneProduct = async () => {
         try {
             const {data} =  await instance.get(`/product/getOneProduct/${id}`)
             setProduct(data.product)
         }catch(error){
             console.log(error)
         }
-    }
+   }
 
-    const changeQuantityMore = () => setQuantity(previous => previous >= product.quantityMax ? previous : previous+1)
- 
-    const changeQuantityLess = () => setQuantity(previous => previous <= 1 ? previous :  previous-1)
+   const changeQuantityMore = () => setQuantity(previous => previous >= product.quantityMax ? previous : previous+1)
+  
+   const changeQuantityLess = () => setQuantity(previous => previous <= 1 ? previous :  previous-1)
 
    const addToCart =  async() => { 
         if(auth) { 

@@ -9,11 +9,10 @@ import { CartEmpty } from "./CartEmpty";
 
 export const Cart = () => {
 
-  const {auth} = useAuth()  
-  const {showCartItems, carrito, setCarrito} = useProduct()
+    const {auth} = useAuth()  
+    const {showCartItems, carrito, setCarrito} = useProduct()
   
-    useEffect(() => {
-      console.log('carrito actualizado');  
+    useEffect(() => { 
       if(auth) {
         showCartItems()  
       }     
@@ -21,20 +20,19 @@ export const Cart = () => {
 
     const changeQuantityMore = (id) => {
       setCarrito((previous) => {
-          const updatedCart = previous.map((product) =>
-              product._id === id && product.quantityItem < product.product.quantityMax
-                  ? {
-                        ...product,
-                        quantityItem: product.quantityItem + 1,
-                        total: (product.quantityItem + 1) * product.priceItem,
-                    }
-                  : product
-          );
-          const product = updatedCart.find((p) => p._id === id);
+        const updatedCart = previous.map((product) =>
+          product._id === id && product.quantityItem < product.product.quantityMax
+            ? {
+                ...product,
+                quantityItem: product.quantityItem + 1,
+                total: (product.quantityItem + 1) * product.priceItem,
+              }
+            : product
+        );
+        const product = updatedCart.find((p) => p._id === id);
 
-          updateOptions(id, product.quantityItem); 
-          return updatedCart;
-
+        updateOptions(id, product.quantityItem); 
+        return updatedCart;
       });
 
     };
@@ -42,19 +40,19 @@ export const Cart = () => {
 
     const changeQuantityLess = (id) => {
 
-       setCarrito(previous => { 
-       const updatedCart = previous.map((product) => 
+      setCarrito(previous => { 
+        const updatedCart = previous.map((product) => 
           product._id == id && product.quantityItem > 1 ? 
           {
-              ...product,
-              quantityItem : product.quantityItem-1,
-              total : (product.quantityItem-1)*product.priceItem 
+            ...product,
+            quantityItem : product.quantityItem-1,
+            total : (product.quantityItem-1)*product.priceItem 
           } 
           : product     
         );
-          const product = updatedCart.find((p) => p._id === id);
-          updateOptions(id, product.quantityItem); 
-          return updatedCart;
+        const product = updatedCart.find((p) => p._id === id);
+        updateOptions(id, product.quantityItem); 
+        return updatedCart;
       } )
 
     }
@@ -92,11 +90,10 @@ export const Cart = () => {
 
    const removeCartProduct = async (id) => {
       try {
-      await instance.delete(`/user/removeCartProduct/${id}`)
-      setCarrito( carrito.filter((previous) => (
-        previous._id !== id
-      )) )
-
+        await instance.delete(`/user/removeCartProduct/${id}`)
+        setCarrito( carrito.filter((previous) => (
+          previous._id !== id
+        )) )
       }catch(error) {
         console.log(error)
       }
@@ -104,10 +101,10 @@ export const Cart = () => {
    
    const buyTheOrder = async (id) => {
     try {
-      await instance.delete(`/user/buyTheOrder/${id}`)
-      setCarrito( carrito.filter((previous) => (
-        previous._id !== id
-      )) )
+        await instance.delete(`/user/buyTheOrder/${id}`)
+        setCarrito( carrito.filter((previous) => (
+          previous._id !== id
+        )) )
       }catch(error) {
         console.log(error)
       }

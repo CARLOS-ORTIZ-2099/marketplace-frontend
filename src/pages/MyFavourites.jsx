@@ -12,7 +12,6 @@ export const MyFavourites = () => {
   const {auth} = useAuth()
   const {favourites, setFavourites, getAllUserFavourites} = useProduct()
   const [error, setError] = useState(null)  
-  const [loading, setLoading] = useState(null)
 
     useEffect(() => {
       if(auth) {
@@ -38,21 +37,17 @@ export const MyFavourites = () => {
     
 
     const handleFavourite = async(product, index) => { 
-       try {
+      try {
         closure(product, index)
         setFavourites((previous) => {
-             const data = previous.filter((ele) => ele.product._id != product._id) 
-             return data
-         })
-         alert(`eliminado correctamente`)
-         setLoading(true) 
-         await instance.post(`/user/addToFavorite/${product._id}`, {action : 'eliminar'})
-         setLoading(false)
-       }catch(error) {
+            const data = previous.filter((ele) => ele.product._id != product._id) 
+            return data
+        })
+        alert(`eliminado correctamente`)
+        await instance.post(`/user/addToFavorite/${product._id}`, {action : 'eliminar'})
+      }catch(error) {
         setError(error)
-        setLoading(false)
-       }
-
+      }
     }  
 
     useEffect(() => {

@@ -6,9 +6,7 @@ export const useFormFields = (initial) => {
     
     const [formData, setFormData] = useState(initial)
     const [errors, setErrors] = useState({})
-    const [loading, setLoading] = useState(false)
 
-   
     
     const handlerChange = (e) => {
       console.log(e)
@@ -38,7 +36,6 @@ export const useFormFields = (initial) => {
         validateErrors,
         setErrors,
         setFormData
-
     }
 
 }
