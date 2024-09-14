@@ -79,12 +79,13 @@ export const MyFavourites = () => {
   return (
     <Box display={'flex'} justifyContent={'space-around'} mt={'5'} gap={'5'} flexWrap={'wrap'}>
         {
-          favourites?.map(({product}, index) => ( 
+          favourites.length > 0 ? favourites?.map(({product}, index) => ( 
             <ProductCard key={product._id} product={product}
               handleFavourite={handleFavourite}
               index={index}
             />
           ))
+          : <Box  color={'#2e7d8c'} fontWeight={'bold'}>no tienes favoritos</Box>
         }
     </Box>
   )

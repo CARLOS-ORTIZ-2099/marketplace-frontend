@@ -6,6 +6,7 @@ import { Box, Button } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as heartWhite } from "@fortawesome/free-regular-svg-icons";
+import { ComponentBolierPlate } from "./ComponentBolierPlate";
 
 export const ProductData = ({product, less, more, quantity, add, loading, deleteProduct, handleFavourite}) => {
 
@@ -29,18 +30,10 @@ export const ProductData = ({product, less, more, quantity, add, loading, delete
 
 
   return (
-    <Box flex={'.6 1 0'} textAlign={'center'}>
-        <Box as="h1" fontSize={{base:'3xl', md : '6xl'}}>{product.name}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>description : {product.description}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>stock : {product.quantityMax}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>brand : {product.brand}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>category : {product.category}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>modo de envio : {product.deliveryMethod}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>estado : {product.state}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>garantia : {product.warranty}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>vendedor: {product.seller.name} {product.seller.lastName}</Box>
-        <Box as="p" fontSize={{base:'xl', md : '2xl'}}>precio: {product.coin == 'soles' ? 'S/' : '$'} {product.price}</Box>
-        
+    <Box flex={'1 1 0'} textAlign={'center'} >
+
+        <ComponentBolierPlate product={product}/>
+         
         {
             buttonFavourite()
         }
@@ -56,7 +49,7 @@ export const ProductData = ({product, less, more, quantity, add, loading, delete
 
                         <Button colorScheme="blue" size={{base : 'sm', lg : 'md'}}>
                             <Link to={`/profile/formPage/${product._id}`}>
-                                editar producto producto
+                                editar producto
                             </Link>
                         </Button>
                     </>
@@ -71,11 +64,11 @@ export const ProductData = ({product, less, more, quantity, add, loading, delete
                             {quantity}
                         </Button>
 
-                        <Button onClick={more} colorScheme="teal" size={{base : 'md', lg : 'md'}}>
+                        <Button onClick={more} isDisabled={quantity>=product.quantityMax} colorScheme="teal" size={{base : 'md', lg : 'md'}}>
                             <FontAwesomeIcon icon={faPlus} />
                         </Button>
                 
-                        <Button colorScheme="teal" onClick={add} disabled={loading || product.quantityMax === 0}>
+                        <Button onClick={add} isDisabled= {loading || product.quantityMax === 0} colorScheme="teal" >
                             {loading ? 'agregando' : 'agregar al carrito'}
                         </Button> 
                     </>

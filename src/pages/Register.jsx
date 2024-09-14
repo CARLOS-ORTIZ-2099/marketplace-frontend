@@ -1,23 +1,23 @@
-import { useState } from "react"
 import { useAuth } from "../context/AuthProvider"
 import { Link } from "react-router-dom"
 import { Box, Button, FormLabel, Input, Text } from "@chakra-ui/react"
+import { useFormAuth } from "../hooks/useFormAuth"
 
+const initial = {email :'', password : '', name : '', lastName : ''}
 
 export const Register = () => {
 
-  const {handlerRegister} = useAuth()  
+  const {handlerRegister, errorRegister} = useAuth()  
+  const {formData, handlerChange, setFormData, validateErrors} = useFormAuth(initial)
 
-   const [email, setEmail]  = useState('') 
-   const [password, setPassword]  = useState('') 
-   const [name, setName]  = useState('') 
-   const [lastName, setLastName]  = useState('') 
-
-   
 
   const sendData = (e) => {
     e.preventDefault()
-    handlerRegister({email, password, name, lastName})
+    if(!validateErrors()) {
+      return alert('todos los campos son obligatorios')
+    }
+    handlerRegister(formData)
+    setFormData(initial)
   }
 
 
@@ -28,24 +28,38 @@ export const Register = () => {
 
         <Text fontSize={{base : '3xl', lg : '5xl'}}>Registro</Text>
 
-        <Box as="form" onSubmit={sendData}>
+        <Box as="form" onSubmit={sendData} noValidate>
 
           <FormLabel>Email address</FormLabel>
-          <Input  type='email' placeholder="email" borderRadius={'18'} value={email} onChange={(e) => setEmail(e.target.value)}/>
+          <Input name="email" type='email' placeholder="email" borderRadius={'18'} value={formData.email} onChange={handlerChange}/>
+          {
+            errorRegister?.email && <Text color={'tomato'} fontWeight={'bold'}>{errorRegister?.email}</Text>
+          }
+          {
+            errorRegister?.message && <Text color={'tomato'} fontWeight={'bold'}>{errorRegister?.message}</Text>
+          }
 
           <FormLabel>password</FormLabel>
-          <Input  type='text' placeholder="password" borderRadius={'18'} value={password} onChange={(e) => setPassword(e.target.value)}/>
+          <Input name="password" type='text' placeholder="password" borderRadius={'18'} value={formData.password} onChange={handlerChange}/>
+          {
+            errorRegister?.password && <Text color={'tomato'} fontWeight={'bold'}>{errorRegister?.password}</Text>
+          }
 
           <FormLabel>name</FormLabel>
-          <Input  type='text' placeholder="name" borderRadius={'18'} value={name} onChange={(e) => setName(e.target.value)}/>
+          <Input name="name"  type='text' placeholder="name" borderRadius={'18'} value={formData.name} onChange={handlerChange}/>
+          {
+            errorRegister?.name && <Text color={'tomato'} fontWeight={'bold'}>{errorRegister?.name}</Text>
+          }
 
           <FormLabel>lastName</FormLabel>
-          <Input  type='text' placeholder="lastName" borderRadius={'18'} value={lastName} onChange={(e) => setLastName(e.target.value)}/>
+          <Input name="lastName" type='text' placeholder="lastName" borderRadius={'18'} value={formData.lastName} onChange={handlerChange}/>
+          {
+            errorRegister?.lastName && <Text color={'tomato'} fontWeight={'bold'}>{errorRegister?.lastName}</Text>
+          }
 
           <Button type="submit" colorScheme="teal" my={'5'} width={'100%'} borderRadius={'18'}>
             registro
           </Button>
-
 
         </Box>
 

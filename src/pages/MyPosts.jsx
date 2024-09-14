@@ -3,14 +3,14 @@ import {instance} from '../libs/axiosConfig'
 import { useAuth } from "../context/AuthProvider"
 import { Box } from "@chakra-ui/react"
 import { ProductCard } from "../components/ProductCard"
+import { Loading } from "../components/Loading"
 
 export const MyPosts = () => {
   const {user, auth} = useAuth()
-  const [itemsOfuser, setItemsOfUser] = useState([])
+  const [itemsOfuser, setItemsOfUser] = useState(null)
 
     useEffect(() => {
       auth && getAllPostUser()
-
     }, [auth])
      
      const getAllPostUser = async () => {
@@ -22,6 +22,8 @@ export const MyPosts = () => {
        }    
     }
 
+    if(!itemsOfuser) return <Loading/>
+
   return (
     <Box display={'flex'} justifyContent={'space-around'} mt={'5'} gap={'5'} flexWrap={'wrap'}>
       {
@@ -31,7 +33,7 @@ export const MyPosts = () => {
               <ProductCard key={item._id} product={item}/>
             ))
           )
-        : (<h3>sin productos</h3>) 
+      : (<Box as="h3" color={'teal'} fontSize={'x-large'}>sin productos</Box>) 
       }
        
     </Box>

@@ -28,7 +28,6 @@ export const ProductsProvider = ({children}) => {
             getAllUserFavourites() 
             return 
         }
-
         setCarrito([]) 
         setFavourites([])    
         
@@ -43,8 +42,7 @@ export const ProductsProvider = ({children}) => {
             if(data.shouldUpdatedCart) {
                 alert('mientras navegabas uno a mas productos de tu carrito sufrieron algunos cambios de precio y/o stock')
             }
-            setCarrito(data.cart)
-            
+            setCarrito(data.cart)    
         }catch(error) {
             console.log(error)
         }
@@ -56,8 +54,7 @@ export const ProductsProvider = ({children}) => {
             // traer todos los productos del carrito de la db del usuario
             const {data} =  await instance.get(`/user/getAllUserFavourites`)
             console.log(data);
-            setFavourites(data.favouritesFound)
-            
+            setFavourites(data.favouritesFound)        
         }catch(error) {
             console.log(error)
         }

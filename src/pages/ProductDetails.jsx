@@ -6,7 +6,8 @@ import { useAuth } from "../context/AuthProvider";
 import { useProduct } from "../context/ProductsProvider";
 import { ProductGallery } from "../components/ProductGallery";
 import { ProductData } from "../components/ProductData";
-import {Container, Spinner } from "@chakra-ui/react";
+import {Container } from "@chakra-ui/react";
+import { Loading } from "../components/Loading";
 
 export const ProductDetails = () => {
  
@@ -126,18 +127,10 @@ export const ProductDetails = () => {
    }
 
 
-   if(!product) return <Spinner
-        thickness='4px'
-        speed='0.65s'
-        emptyColor='gray.200'
-        color='#2e7d8c'
-        size='xl'
-        display={'block'}
-        mx={'auto'}
-    />
+   if(!product) return <Loading/>
 
   return (
-    <Container maxW={{base : '100%', sm : '70%'}} display={'flex'} flexDirection={{base : 'column', lg : 'row'}} p={{base : '1', lg : '10'}} flexWrap={'wrap'} >
+    <Container maxW={{base : '100%'}} display={'flex'} flexDirection={{base : 'column', lg : 'row'}} p={{base : '1', lg : '10'}} flexWrap={'wrap'} >
 
         <ProductGallery images={product.images}/>
 
@@ -148,8 +141,8 @@ export const ProductDetails = () => {
             quantity={quantity}
             add={addToCart}
             deleteProduct={deleteProduct}
-            loading={loading}
             handleFavourite={handleFavourite}
+            loading={loading}
         />
 
     </Container>

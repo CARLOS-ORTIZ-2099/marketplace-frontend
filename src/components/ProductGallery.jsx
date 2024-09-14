@@ -36,7 +36,7 @@ export const ProductGallery = ({images}) => {
       {/* contenedor de imagen principal */}
       <GridItem rowSpan={1} colSpan={4} position={'relative'}>
         {/* imagen principal */}
-        <Box as='img' alt="main-image" src={imagesState[indexImage].secure_url} h={{base : '250px', sm : '450px'}} objectFit={'cover'} borderRadius={10}>
+        <Box as='img' alt="main-image" src={imagesState[indexImage].secure_url} h={{base : '100%', sm : '450px'}} objectFit={'cover'} borderRadius={10}>
         </Box>
 
         {/* botones */}

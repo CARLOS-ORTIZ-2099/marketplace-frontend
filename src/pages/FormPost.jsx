@@ -4,21 +4,11 @@ import { instance } from "../libs/axiosConfig"
 import { useFormFields } from "../hooks/useFormFields"
 import { useParams } from "react-router-dom"
 import { useAuth } from "../context/AuthProvider"
-
-
-const initial = {
-  name : '',
-  description : '',
-  price : '',
-  quantityMax : '',
-  category : '',
-  brand : '',
-  coin : '',
-  state : '',
-  deliveryMethod :'',
-  warranty : ''
-
-}
+import { Box, Button, Checkbox, FormControl, FormLabel, Image, Input, Select, Text, Textarea } from "@chakra-ui/react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCloudArrowUp, faTrash, faImage } from "@fortawesome/free-solid-svg-icons"
+import {faImage as imageSecond} from '@fortawesome/free-regular-svg-icons'
+import { initial } from "../libs/initialData"
 
 
 export const FormPost = () => {
@@ -28,12 +18,10 @@ export const FormPost = () => {
   // estado que manipula las fotos que se van a eliminar 
   const [photosDelete, setPhotosDelete] = useState([]) 
   const { formData, errors, handlerChange, validateErrors, setErrors, setFormData} = useFormFields(initial)
-
   const {id} = useParams()
 
   useEffect(() => { 
     if(id && auth) {
-      console.log(`hacer peticion al servidor`)
       getOneProduct()
     }
   }, [id])
@@ -43,19 +31,19 @@ export const FormPost = () => {
         const {data} =  await instance.get(`/product/getOneProduct/${id}`)
         for(let key in data.product) {
           if(key != '__v' && key != 'images' &&  key != '_id' &&  key != 'seller') {
-              setFormData((pre) => ( {...pre, [key] : data.product[key]} ))
+            setFormData((pre) => ( {...pre, [key] : data.product[key]} ))
           }
         }
         setPhotos(data.product.images)
     }catch(error){
-        console.log(error)
+      console.log(error)
     }
   }
 
   function preInput(header, description) {
     return <>
-      <h2>{header}</h2>
-      <p>{description}</p>
+      <Box as="h2" color={'teal'} fontWeight={'bolder'}>{header}</Box>
+      <Box as="p" color={'teal'} >{description}</Box>
     </>
   }
 
@@ -65,7 +53,6 @@ export const FormPost = () => {
     // primero validar que todos los campos del formulario esten llenos
      let errorsObject = validateErrors()
      //console.log(errorsObject)
-
     if(photos.length < 1) {
       errorsObject = {...errorsObject, images : {message : 'selecciona almenos una imagen' } } 
     }
@@ -76,8 +63,7 @@ export const FormPost = () => {
         setTimeout(() => {
           setErrors({})
         }, 4000);
-        return alert(`todos los campos son obligatorios`)
-        
+        return alert(`todos los campos son obligatorios`)   
     }
     
     const newFormData = new FormData()
@@ -104,9 +90,7 @@ export const FormPost = () => {
     // no se han eliminado y aun deberian conservarse en la DB
     photosRemaind.length > 0 && newFormData.append('photosRemaind', JSON.stringify(photosRemaind))
 
-
     console.log(Object.fromEntries(newFormData))
-
 
     // si id existe significa que estamos en modo edicion
     if(id) {
@@ -144,10 +128,8 @@ export const FormPost = () => {
         }, 4000)
       }
     }
-    
 
   }  
-
 
   async function uploadPhoto(e) {
     const files = e.target.files
@@ -155,32 +137,23 @@ export const FormPost = () => {
     for(let i = 0; i < files.length; i++ ) {
       console.log(files[i])
       const reader = new FileReader();
-
       // Comienza a leer el contenido del archivo especificado
       reader.readAsDataURL(files[i]);
-
       // se activa cuando una lectura de archivo se completo correctamente
       reader.addEventListener('load', (event) => {
-          setPhotos((previous) => [...previous, {file : files[i], result : reader.result, id : event.timeStamp}])
-
+        setPhotos((previous) => [...previous, {file : files[i], result : reader.result, id : event.timeStamp}])
       } )
-      
     }
-    
   }
 
 
   async function removePhoto(e, idPhoto) {
 
-
     if(typeof idPhoto.id == 'string') {
       setPhotosDelete((previous) => ( [...previous, idPhoto] ))
     }
-
     setPhotos([...photos.filter(photo =>  {
-
       return photo.id !== idPhoto.id      
-
     } )]);
 
   }
@@ -197,90 +170,77 @@ export const FormPost = () => {
   
 
   return (
-    <div>
-        <h1>CreatePost</h1>  
- 
+    <Box display={'flex'} justifyContent={'center'} alignItems={'center'}  minH={'70vh'}>
 
-        <form onSubmit={sendData}>
+      <Box  w={{base : '90%', md : '500px'}} >
 
-          <input type="submit" value={'send data'} />
+        <Text fontSize={{base : '3xl', lg : '5xl'}}>{id ? 'update post' : 'create post'}</Text>
 
+        <Box as="form" onSubmit={sendData} sx={{ '& > *': { mt: '10px' } }}>
+  
+          <Button type="submit" colorScheme="teal" my={'5'} width={'100%'} borderRadius={'18'}>
+                {id ? 'update post' : 'create post'}
+          </Button>
 
           {/* marca producto */}
 
-            { preInput('brand', 'write the real brand of the product or generic if not have brand') }
-
-            <input 
-              type="text" 
-              placeholder="brand"
-              value={formData.brand} 
-              onChange={handlerChange}
-              name="brand"
-            />
-            <br/>
-            {
-              errors.brand && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.brand.message}</p>
-            }
+          { preInput('brand', 'write the real brand of the product or generic if not have brand') }
+  
+          <Input  type='text' placeholder="brand" borderRadius={'18'} value={formData.brand} onChange={handlerChange} name="brand"/>
+        
+          {
+            errors.brand && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.brand.message}</p>
+          }
 
 
+          {/* estado de  producto */}
 
+          {
+            preInput('state', 'select of appropriate condition for your product and avoid clain from your buyers')
+          }
 
-         {/* estado de  producto */}
+      
+        
+        <Checkbox id="nuevo" 
+          type="checkbox"
+          name="state"
+          onChange={handlerChange}
+          isChecked={formData.state == 'nuevo'}
+        >nuevo 
+        </Checkbox>
 
+        <Checkbox id="usado" 
+          type="checkbox"
+          name="state"
+          onChange={handlerChange}
+          isChecked={formData.state == 'usado'}
+        > usado 
+        </Checkbox>
 
-           {
-              preInput('state', 'select of appropriate condition for your product and avoid clain from your buyers')
-           }
+        <Checkbox id="reacondicionado" 
+          type="checkbox"
+          name="state"
+          onChange={handlerChange}
+          isChecked={formData.state == 'reacondicionado'}
+        > reacondicionado 
+        </Checkbox>  
 
-            <label htmlFor="nuevo">nuevo</label>
-            <input 
-              id="nuevo" 
-              type="checkbox"
-              name="state"
-              onChange={handlerChange}
-              checked={formData.state == 'nuevo'}
-            />
-
-            <label htmlFor="usado">usado</label>
-            <input 
-               id="usado" 
-               type="checkbox"
-               name="state"
-               onChange={handlerChange}
-               checked={formData.state == 'usado'}
-            />
-
-            <label htmlFor="reacondicionado">reacondicionado </label>
-            <input 
-               id="reacondicionado" 
-               type="checkbox"
-               name="state"
-               onChange={handlerChange}
-               checked={formData.state == 'reacondicionado'}
-            />
-
-            {
-              errors.state && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.state.message}</p>
-            }
+        {
+          errors.state && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.state.message}</p>
+        }
 
 
 
-            {/* nombre de producto */}
+        {/* nombre de producto */}
 
-            {
-              preInput('name', 'include product, brand, model and highlights theirs main features')
-            }
-            <input 
-                type="text" 
-                placeholder="name" 
-                onChange={handlerChange}
-                value={formData.name}
-                name="name"
-            />
+        {
+          preInput('name', 'include product, brand, model and highlights theirs main features')
+        }
+        <Input  type='text' placeholder="brand" borderRadius={'18'} value={formData.name} onChange={handlerChange} name="name"/>
 
-            {
-              errors.name && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.name.message}</p>
-            }
+        {
+          errors.name && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.name.message}</p>
+        }
 
 
 
@@ -288,277 +248,274 @@ export const FormPost = () => {
 
 
 
-            {/* fotos de producto */}
+        {/* fotos de producto */}
 
-            {
-              preInput('photos', 'upload good photos for that the  product highlights  ')
-            }
-            <input 
-              type="file"
-              placeholder="file"  
-              name="images"
-              multiple
-              onChange={uploadPhoto}
-            />
+        {
+          preInput('photos', 'upload good photos for that the  product highlights  ')
+        }
 
+          <FormControl >
+            <FormLabel cursor="pointer"textAlign={'center'}>
+                <Input  type="file" 
+                  name="images" 
+                  multiple 
+                  onChange={uploadPhoto} 
+                  display="none" // Oculta el input de archivo
+                />
+                <Box >
+                  <FontAwesomeIcon icon={faCloudArrowUp} size="2xl"/>
+                </Box>
+                upload  
+            </FormLabel> 
+    
+          </FormControl>
 
-            <div style={{display : 'flex', flexWrap : 'wrap', gap : '1rem', margin : '20px'}}>
-              {
-                photos.length > 0 && photos?.map((photo) => (
-                  <div key={photo.id || photo.public_id}>
-                      <img width={'150px'} height={'150px'} 
-                        src={photo.result || photo.secure_url} 
+         
+        
+      
+        <Box  /* border={'solid red 2px'} */ display={'flex'} flexWrap={'wrap'} 
+          justifyContent={'space-around'} alignItems={'center'} gap={'2'}
+        >
+          {
+            photos.length > 0 && photos?.map((photo) => (
+              <Box borderRadius={'18'} key={photo.id || photo.public_id} /* border={'solid blue 2px'} */>
+                  <Image
+                     boxSize='100px'
+                     objectFit='cover'
+                     alt='image' 
+                     borderRadius={'18'}
+                    src={photo.result || photo.secure_url} 
+                  />
+                  
+                  <Box display={'flex'} justifyContent={'space-around'} alignItems={'center'}> 
+                    <FontAwesomeIcon icon={faTrash}
+                        onClick={(e) => removePhoto(e, photo )} 
+                        size="lg"
                       />
-                      <br/>
-                      <span 
-                        onClick={(e) => removePhoto(e, photo )}>
-                        eliminar
-                      </span>
+                     <Box as="span" onClick={() => selectImageMain(photo)}>
 
-                      <p onClick={() => selectImageMain(photo)}>
+                          {
+                            photo.id === photos[0].id &&(
+                              <FontAwesomeIcon icon={faImage} size="lg"/>
+                            )
+                          }
+                          {
+                            photo.id !== photos[0].id &&(
+                              <FontAwesomeIcon icon={imageSecond} size="lg"/>
+                            )
+                          }
 
-                      {
-                        photo.id === photos[0].id &&(
-                          <svg width={'50px'} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                            <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
-                            <path fillRule="evenodd" d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
-                          </svg>
-
-                        )
-                      }
-                      {
-                        photo.id !== photos[0].id &&(
-                          <svg width={'50px'} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
-                          </svg>
-                        )
-                      }
+                    </Box>
+                  </Box>
 
 
-                      
-                      </p>
+                 
 
-                  </div>
-                ))
-              }
-            </div>
-            
-            {
-              errors.images && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.images.message}</p>
-            }
-
+              </Box>
+            ))
+          }
+        </Box>
+        
+        {
+          errors.images && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.images.message}</p>
+        }
 
 
+        {/* stock de producto */}
+
+        {
+          preInput('stock', 'Indicate how many units you have for sale')
+        }
+        <Input type="number"
+          min={1}
+          placeholder="quantityMax"
+          borderRadius={'18'}
+          value={formData.quantityMax}
+          onChange={handlerChange}
+          name="quantityMax"
+        />
+
+        {
+          errors.quantityMax && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.quantityMax.message}</p>
+        }
 
 
+        {/* descripcion de producto */}
+        {
+          preInput('description', ' details the main features of you product' )
+        }
+        <Textarea
+          placeholder="description"
+          borderRadius={'18'}
+          value={formData.description}
+          onChange={handlerChange}
+          name="description"
+          size='sm'
+          resize={'none'}
+        />
 
 
-             {/* stock de producto */}
-
-            {
-              preInput('stock', 'Indicate how many units you have for sale')
-            }
-            <input 
-                type="number" 
-                min={1}
-                placeholder="quantityMax"
-                onChange={handlerChange}
-                value={formData.quantityMax}
-                name="quantityMax"
-            />
-            {
-              errors.quantityMax && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.quantityMax.message}</p>
-            }
+        {
+          errors.description && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.description.message}</p>
+        }
 
 
-            {/* descripcion de producto */}
-            {
-              preInput('description', ' details the main features of you product' )
-            }
-            <textarea 
-                placeholder="description"
-                onChange={handlerChange}
-                value={formData.description}
-                name="description"
-            >
+        {/* precio de producto */}
 
-            </textarea>
+        {
+          preInput('price', 'Indicate how much you want to sell the product for')
+        }
 
-            {
-              errors.description && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.description.message}</p>
-            }
-
-
-
-
-
-           
-
-             {/* precio de producto */}
- 
-            {
-              preInput('price', 'Indicate how much you want to sell the product for')
-            }
-
-            <select name='coin'  onChange={handlerChange}>
-              <option  value="">coin select</option>
-              <option  value="soles" selected={formData.coin === 'soles'}>S/</option>
+       <Box display={'flex'}>
+          <Select placeholder='coin select' borderRadius={'18'}  onChange={handlerChange} name='coin'
+              >
+              <option value="soles" selected={formData.coin === 'soles'}>S/</option>
               <option  value="dolares" selected={formData.coin === 'dolares'}>US$</option>
-            </select>
-          
-            <input 
-                type="number" 
-                min={1}
-                name="price" 
-                placeholder="price"
-                //value={price}
-                //onChange={(e) => setPrice(e.target.value)}
-                onChange={handlerChange}
-                value={formData.price}
-            />
-            {
-              errors.coin && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{'selecciona el tipo de moneda'}</p>
-            }
-            {
-              errors.price && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.price.message}</p>
-            }
+            </Select>
 
-
-
-              {/* categoria de producto */}
-              {
-                preInput('category', 'write the category of the product')
-              }
-              <select name='category'   onChange={handlerChange}>
-                <option  value="">category select</option>
-                <option  
-                  value="clothes"
-                  selected={formData.category === 'clothes'}
-                >clothes
-                </option>  
-                <option  
-                  value="footwear"
-                  selected={formData.category === 'footwear'}
-                  >footwear
-                  </option>
-                <option  
-                  value="technology"
-                  selected={formData.category === 'technology'}
-                  >   
-                  technology
-                  </option>
-                <option  
-                  value="videogames"
-                  selected={formData.category === 'videogames'}
-                  >
-                    videogames
-                </option>
-                <option  
-                  value="sport"
-                  selected={formData.category === 'sport'}
-                >
-                  sport
-                </option>
-                <option  
-                  value="others"
-                  selected={formData.category === 'others'}
-                >
-                  others
-                </option>
-              </select>
-
-            {
-              errors.category && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.category.message}</p>
-            }
-
-
-
-
-
-
-            {/* metodo de entrega de producto */}
-
-            {
-              preInput('Delivery method', 'choose one')
-            }
-            <label htmlFor="delivery">delivery</label>
-
-            <input 
-              id="delivery" 
-              type="checkbox"
-              name="deliveryMethod"
+            <Input type="number"
+              min={1}
+              placeholder="price"
+              borderRadius={'18'}
+              value={formData.price}
               onChange={handlerChange}
-              checked={formData.deliveryMethod == 'delivery'} 
-              //checked={'delivery' == deliveryMethod} 
+              name="price"
+              
             />
+       </Box>
+       {
+          errors.coin && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{'selecciona el tipo de moneda'}</p>
+        }
+        {
+          errors.price && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.price.message}</p>
+        }
 
-            <label htmlFor="presencial">presencial</label>
-
-            <input 
-              id="presencial" 
-              type="checkbox"
-              name="deliveryMethod"
-              onChange={handlerChange}
-              checked={formData.deliveryMethod == 'presencial'}  
-              //checked={'presencial' == deliveryMethod}  
-            />
-
-            {
-              errors.deliveryMethod && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.deliveryMethod.message}</p>
-            }
+        
 
 
 
+          {/* categoria de producto */}
+          {
+            preInput('category', 'write the category of the product')
+          }
+
+          <Select placeholder='category select' borderRadius={'18'}  onChange={handlerChange} name='category'
+              >
+            <option  
+              value="clothes"
+              selected={formData.category === 'clothes'}
+            >clothes
+            </option>  
+            <option  
+              value="footwear"
+              selected={formData.category === 'footwear'}
+              >footwear
+              </option>
+            <option  
+              value="technology"
+              selected={formData.category === 'technology'}
+              >   
+              technology
+              </option>
+            <option  
+              value="videogames"
+              selected={formData.category === 'videogames'}
+              >
+                videogames
+            </option>
+            <option  
+              value="sport"
+              selected={formData.category === 'sport'}
+            >
+              sport
+            </option>
+            <option  
+              value="others"
+              selected={formData.category === 'others'}
+            >
+              others
+            </option>      
+          </Select>
 
 
-
-            {/* garantia de producto */}
-
-            {
-              preInput('warranty', 'Indicates the type of guarantee offered.')
-            }
-
-            <label htmlFor="garantia-vendedor">garantia del vendedor</label>
-
-            <input 
-               id="garantia-vendedor" 
-               type="checkbox"
-               name="warranty"
-               onChange={handlerChange} 
-               checked={ formData.warranty == 'garantia-vendedor'}   
-               //checked={'garantia vendedor' == warranty}   
-            />
-
-            <label htmlFor="garantia-fabrica">garantia de fabrica</label>
-           
-            <input 
-               id="garantia-fabrica" 
-               type="checkbox"
-               name="warranty"
-               onChange={handlerChange} 
-               checked={ formData.warranty == 'garantia-fabrica'} 
-               //checked={'garantia fabrica' == warranty}   
-            />  
-
-            <label htmlFor="sin-garantia">sin garantia</label>
-
-            <input 
-              id="sin-garantia" 
-              type="checkbox"
-              name="warranty"
-              onChange={handlerChange}
-              checked={ formData.warranty == 'sin-garantia'}
-              //checked={'sin garantia' == warranty} 
-            />  
-            {
-              errors.warranty && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.warranty.message}</p>
-            }
+        {
+          errors.category && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.category.message}</p>
+        }
 
 
-        </form>
+        {/* metodo de entrega de producto */}
 
-    </div>
+        {
+          preInput('Delivery method', 'choose one')
+        }
+
+        <Checkbox id="delivery" 
+          type="checkbox"
+          name="deliveryMethod"
+          onChange={handlerChange}
+          isChecked={formData.deliveryMethod == 'delivery'}
+        >delivery 
+        </Checkbox>
+
+
+        <Checkbox id="presencial" 
+          type="checkbox"
+          name="deliveryMethod"
+          onChange={handlerChange}
+          isChecked={formData.deliveryMethod == 'presencial'}
+        >presencial 
+        </Checkbox>
+
+
+        {
+          errors.deliveryMethod && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.deliveryMethod.message}</p>
+        }
+
+
+        {/* garantia de producto */}
+
+        {
+          preInput('warranty', 'Indicates the type of guarantee offered.')
+        }
+
+        <Checkbox id="garantia-vendedor" 
+          type="checkbox"
+          name="warranty"
+          onChange={handlerChange}
+          isChecked={ formData.warranty == 'garantia-vendedor'}
+        >garantia del vendedor 
+        </Checkbox>
+
+
+        <Checkbox id="garantia-fabrica" 
+          type="checkbox"
+          name="warranty"
+          onChange={handlerChange}
+          isChecked={ formData.warranty == 'garantia-fabrica'}
+        >garantia de fabrica 
+        </Checkbox>
+
+
+        <Checkbox id="sin-garantia" 
+          type="checkbox"
+          name="warranty"
+          onChange={handlerChange}
+          isChecked={ formData.warranty == 'sin-garantia'}
+        >sin garantia 
+        </Checkbox>
+
+        {
+          errors.warranty && <p style={{color : 'tomato', fontWeight: 'bolder'}}>{errors.warranty.message}</p>
+        }
+
+
+              
+        </Box>
+ 
+      </Box>
+        
+
+    </Box>
   )
 
 

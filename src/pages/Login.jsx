@@ -2,15 +2,15 @@ import { useEffect, useState } from "react"
 import { useAuth } from "../context/AuthProvider"
 import { Link, Navigate } from "react-router-dom"
 import { Box, Button, FormLabel, Input, Text } from "@chakra-ui/react"
+import { useFormAuth } from "../hooks/useFormAuth"
 
+const initial = {email :'', password : ''}
 
 export const Login = () => {
 
-  const {handlerLogin, auth} = useAuth()  
-
-   const [email, setEmail]  = useState('carlos1@gmail.com') 
-   const [password, setPassword]  = useState('123456') 
-   const [redirect, setRedirect] = useState(null)
+  const {handlerLogin, auth, errorLogin} = useAuth()  
+  const {formData, validateErrors, handlerChange} = useFormAuth(initial)
+  const [redirect, setRedirect] = useState(null)
  
 
    useEffect(() => {
@@ -20,12 +20,13 @@ export const Login = () => {
 
   const sendData = (e) => {
     e.preventDefault()
-    handlerLogin({email, password})
+    if(!validateErrors()) {
+      return alert('todos los campos son obligatorios')    
+    }
+    handlerLogin(formData)
   }
 
-
   if(redirect) return <Navigate to={redirect}/>
-
 
 
   return (
@@ -33,14 +34,14 @@ export const Login = () => {
       <Box  w={{base : '90%', sm : '450px'}} >
         <Text fontSize={{base : '3xl', lg : '5xl'}}>Login</Text>
 
-        <Box as="form" onSubmit={sendData} >
+        <Box as="form" onSubmit={sendData} noValidate>
            
           <FormLabel>Email address</FormLabel>
-          <Input  type='email' placeholder="email" borderRadius={'18'} value={email} onChange={(e) => setEmail(e.target.value)}/>
+          <Input name="email" type='email' placeholder="email" borderRadius={'18'} value={formData.email} onChange={handlerChange}/>
              
     
           <FormLabel>password</FormLabel>
-          <Input type='text' placeholder="password" borderRadius={'18'} value={password}  onChange={(e) => setPassword(e.target.value)}/>
+          <Input name="password" type='text' placeholder="password" borderRadius={'18'} value={formData.password}  onChange={handlerChange}/>
         
 
           <Button type="submit" colorScheme="teal" my={'5'} width={'100%'} borderRadius={'18'}>
@@ -49,6 +50,10 @@ export const Login = () => {
 
         </Box>
           
+        {
+          errorLogin?.message && <Box mb={'2'} color={'tomato'}>{errorLogin.message}</Box>
+        }
+
         <Link to={'/register'}>no tienes una cuenta? registrate</Link>
            
       </Box>

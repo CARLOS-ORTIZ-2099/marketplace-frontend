@@ -18,7 +18,9 @@ export const AuthProvider = ({children}) => {
     // estos estados se compartiran globalmente para toda la app
     const [auth, setAuth] = useState(false) // estado booleano que indica si el usuario esta logueado o no
     const [user, setUser] = useState({}) // este estado contiene la informacion del usuario
-    
+    const [errorLogin, setError] = useState({})
+    const [errorRegister, setErrorRegister] = useState({})
+
     // cada que se refresque la pagina llamaremos a verifyAuth
     useEffect(() => {
         verifyAuth()
@@ -27,29 +29,26 @@ export const AuthProvider = ({children}) => {
     
     const handlerRegister = async (body) => {
         try {
-            const data = await instance.post(`/auth/register`, body)
-            console.log(data);
-            
+            await instance.post(`/auth/register`, body)
+            alert('creado correctamente')  
         }catch(error) {
-            console.log(error);   
+            console.log(error);
+            setErrorRegister(error.response.data)
+            setTimeout(() => setErrorRegister({}), 2000)     
         }
     }
-
-
 
     const handlerLogin = async (body) => {
         try {
             const {data} = await instance.post(`/auth/login`, body) 
             setAuth(true)
-            //console.log(data);
             setUser(data.user)
-        }catch(error) {
-            console.log(error);    
-        }
-        
+        }catch(error) { 
+            setError(error.response.data)
+            setTimeout(() => setError({}), 2000)   
+        }    
     }
- 
-    
+   
     const handlerCloseSession = async () => {
         try {
             const {data} = await instance.post('/auth/closeSession')
@@ -61,9 +60,6 @@ export const AuthProvider = ({children}) => {
         }
     }
 
-
-    // esta funcion consultara al servidor y enviara un token si existe, si el token es valido
-    // el servidor traera los datos del usuario, para volver a setear estos estados
     const verifyAuth = async() => {
         const cookie = jsCookie.get('token-market')
         // si la cookie existe consultar
@@ -76,11 +72,10 @@ export const AuthProvider = ({children}) => {
             }catch(error){  
                 console.log(error)
             }
-
         }   
     }
 
-    const data = {auth, user, setAuth, handlerLogin, handlerCloseSession, handlerRegister}
+    const data = {auth, user, errorLogin,errorRegister,  setAuth, handlerLogin, handlerCloseSession, handlerRegister}
 
   return (
     <AuthContext.Provider value={data}>

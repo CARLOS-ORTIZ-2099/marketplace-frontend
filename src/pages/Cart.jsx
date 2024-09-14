@@ -20,7 +20,6 @@ export const Cart = () => {
     }, [auth])
 
     const changeQuantityMore = (id) => {
-
       setCarrito((previous) => {
           const updatedCart = previous.map((product) =>
               product._id === id && product.quantityItem < product.product.quantityMax
@@ -57,7 +56,6 @@ export const Cart = () => {
           updateOptions(id, product.quantityItem); 
           return updatedCart;
       } )
- 
 
     }
 
@@ -94,7 +92,7 @@ export const Cart = () => {
 
    const removeCartProduct = async (id) => {
       try {
-      const response = await instance.delete(`/user/removeCartProduct/${id}`)
+      await instance.delete(`/user/removeCartProduct/${id}`)
       setCarrito( carrito.filter((previous) => (
         previous._id !== id
       )) )
@@ -110,7 +108,6 @@ export const Cart = () => {
       setCarrito( carrito.filter((previous) => (
         previous._id !== id
       )) )
-
       }catch(error) {
         console.log(error)
       }
@@ -121,7 +118,7 @@ export const Cart = () => {
     <>
       {
         carrito.length > 0
-        ? <TemplateCarritoProduct carrito={carrito} 
+        ? <TemplateCarritoProduct 
             funciones={{changeQuantityLess, changeQuantityMore, removeCartProduct, buyTheOrder}}
           />
         : <CartEmpty/>

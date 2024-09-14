@@ -1,15 +1,18 @@
 /* eslint-disable react/prop-types */
-import { Box, Container, Image } from "@chakra-ui/react"
+import { Box, Button, Container, Image } from "@chakra-ui/react"
 import { faCcAmazonPay } from "@fortawesome/free-brands-svg-icons"
 import { faCircleMinus, faCirclePlus, faTrashCan } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Link } from "react-router-dom"
+import { useProduct } from "../context/ProductsProvider"
 
 
-export const TemplateCarritoProduct = ({carrito, funciones}) => {
+export const TemplateCarritoProduct = ({funciones}) => {
     const {changeQuantityLess, changeQuantityMore, removeCartProduct,
         buyTheOrder
     } = funciones
+
+    const { carrito } = useProduct()
 
   return (
 
@@ -34,23 +37,27 @@ export const TemplateCarritoProduct = ({carrito, funciones}) => {
                                 <Box as="h2" className='fs-6'>Precio: <b className='text-success'>{ele.priceItem} {ele.product.coin == 'soles' ? 'S/' : '$'}</b></Box>
                                 <Box as="h2" className='fs-6'> Total: <b className='text-success-emphasis'> {ele.total}{ele.product.coin == 'soles' ? 'S/' : '$'}</b></Box>                              
                                 <Box mt={'4'}display={'flex'} justifyContent={'space-around'}alignItems={'center'}>
-                                    <FontAwesomeIcon icon={faCirclePlus} 
-                                        style={{color: "#0d61f2",}}
-                                        size="xl" 
-                                        cursor={'pointer'}
-                                        onClick={() => changeQuantityMore(ele._id)}
-                                    />
+                                    <Button isDisabled={ele.quantityItem>=ele.product.quantityMax} variant='ghost'>
+                                        <FontAwesomeIcon icon={faCirclePlus} 
+                                            style={{color: "#0d61f2",}}
+                                            size="xl" 
+                                            cursor={'pointer'}
+                                            onClick={() => changeQuantityMore(ele._id)}
+                                        />
+                                    </Button>
 
                                     <Box as="h2" fontSize={{base : 'sm', lg : 'x-large'}}>
                                         {ele.quantityItem}
                                     </Box>
-                                                                             
-                                    <FontAwesomeIcon icon={faCircleMinus} 
-                                        style={{color: "#e11414",}} 
-                                        size="xl" 
-                                        cursor={'pointer'}
-                                        onClick={() => changeQuantityLess(ele._id)}
-                                    />
+                                    <Button isDisabled={ele.quantityItem == 1} variant='ghost'>
+                                        <FontAwesomeIcon icon={faCircleMinus} 
+                                            style={{color: "#e11414",}} 
+                                            size="xl" 
+                                            cursor={'pointer'}
+                                            onClick={() => changeQuantityLess(ele._id)}
+                                        />
+                                    </Button>                                   
+                                    
 
                                     <FontAwesomeIcon icon={faTrashCan} 
                                         style={{color: "#5a5858",}} 

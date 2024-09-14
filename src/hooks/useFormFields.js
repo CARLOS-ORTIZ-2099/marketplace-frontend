@@ -11,7 +11,7 @@ export const useFormFields = (initial) => {
    
     
     const handlerChange = (e) => {
-      //console.log(e)
+      console.log(e)
       const ev = e.target
       const hasProperty = ev.hasOwnProperty('checked')
       
