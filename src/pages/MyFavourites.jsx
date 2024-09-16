@@ -7,7 +7,7 @@ import { ProductCard } from "../components/ProductCard"
 import { Box } from "@chakra-ui/react"
 
 
-export const MyFavourites = () => {
+const MyFavourites = () => {
 
   const {auth} = useAuth()
   const {favourites, setFavourites, getAllUserFavourites} = useProduct()
@@ -85,4 +85,7 @@ export const MyFavourites = () => {
     </Box>
   )
 }
+
+export default MyFavourites
+
 

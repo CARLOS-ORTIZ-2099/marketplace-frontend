@@ -7,7 +7,7 @@ import { TemplateCarritoProduct } from "../components/TemplateCarritoProduct";
 import { CartEmpty } from "./CartEmpty";
 
 
-export const Cart = () => {
+const Cart = () => {
 
     const {auth} = useAuth()  
     const {showCartItems, carrito, setCarrito} = useProduct()
@@ -123,3 +123,9 @@ export const Cart = () => {
     </>
   )
 }
+
+
+export default Cart
+
+
+

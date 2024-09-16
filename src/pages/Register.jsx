@@ -1,18 +1,42 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useAuth } from "../context/AuthProvider"
-import { Link } from "react-router-dom"
-import { Box, Button, FormLabel, Input, Text } from "@chakra-ui/react"
+import { Link, useNavigate, useParams } from "react-router-dom"
+import { Box, Button, FormLabel, Input, Text, Textarea} from "@chakra-ui/react"
 import { useFormAuth } from "../hooks/useFormAuth"
+import { useEffect } from "react"
+
 
 const initial = {email :'', password : '', name : '', lastName : ''}
 
-export const Register = () => {
+ const Register = () => {
 
-  const {handlerRegister, errorRegister} = useAuth()  
+  const {handlerRegister, errorRegister, handlerEditUser, user, updated, setUpdated} = useAuth()  
   const {formData, handlerChange, setFormData, validateErrors} = useFormAuth(initial)
+  const {id}  = useParams()
+  const navigate = useNavigate()
+ 
+
+
+ useEffect(() => {  
+  if(updated) {
+    navigate('/profile')
+    setUpdated(false)
+  }
+ }, [updated])
+
+  useEffect(() => {
+    if(id) {
+      setFormData({email :user.email, name : user.name, lastName : user.lastName, password : '', bio : user.bio || ''})
+    }
+  }, [])
 
 
   const sendData = (e) => {
     e.preventDefault()
+    if(id) {
+      handlerEditUser(formData, id)
+      return
+    }
     if(!validateErrors()) {
       return alert('todos los campos son obligatorios')
     }
@@ -26,7 +50,7 @@ export const Register = () => {
        
       <Box w={{base : '90%', sm : '450px'}}>
 
-        <Text fontSize={{base : '3xl', lg : '5xl'}}>Registro</Text>
+        <Text fontSize={{base : '3xl', lg : '5xl'}}>{id ? 'editar' : 'Registro'}</Text>
 
         <Box as="form" onSubmit={sendData} noValidate>
 
@@ -57,8 +81,19 @@ export const Register = () => {
             errorRegister?.lastName && <Text color={'tomato'} fontWeight={'bold'}>{errorRegister?.lastName}</Text>
           }
 
+          {
+            id && (
+              <>
+                <FormLabel>bio</FormLabel>
+                <Textarea name="bio" placeholder="bio" resize={'none'}
+                  borderRadius={'18'} value={formData.bio} onChange={handlerChange}
+                />
+              </>
+            )
+          }
+
           <Button type="submit" colorScheme="teal" my={'5'} width={'100%'} borderRadius={'18'}>
-            registro
+              {id ? 'editar' : 'Registro'}
           </Button>
 
         </Box>
@@ -70,3 +105,5 @@ export const Register = () => {
     </Box>
   )
 }
+
+export default Register

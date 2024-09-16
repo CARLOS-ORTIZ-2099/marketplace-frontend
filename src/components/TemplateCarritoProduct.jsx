@@ -14,6 +14,8 @@ export const TemplateCarritoProduct = ({funciones}) => {
 
     const { carrito } = useProduct()
 
+
+    
   return (
 
     <Container maxW={{base : '100%', lg : '50%'}} mt={'5'} pt={'5'} boxShadow='xl' p='6' rounded='md' bg='white'>

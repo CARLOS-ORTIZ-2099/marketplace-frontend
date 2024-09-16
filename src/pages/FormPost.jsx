@@ -14,7 +14,7 @@ import { DeliveryMethodCheckbox } from "../components/DeliveryMethodCheckbox"
 import { WarrantyCheckbox } from "../components/WarrantyCheckbox"
 
 
-export const FormPost = () => {
+ const FormPost = () => {
   const {auth} = useAuth()
   // estado que manipula las fotos
   const [photos, setPhotos] = useState([])
@@ -264,3 +264,6 @@ export const FormPost = () => {
   )
 
 }
+
+
+export default FormPost

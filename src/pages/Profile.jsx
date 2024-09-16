@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthProvider"
 import { useState } from "react"
 import { useEffect } from "react"
 
-export const Profile = () => {
+const Profile = () => {
   
   const {auth} = useAuth()
   const [redirect, setRedirect] = useState(null)
@@ -22,10 +22,15 @@ export const Profile = () => {
 
 
   return (
-    <div> 
-        <NavbarProfile/>  
-        <Outlet/>
-    </div>
+    <> 
+      <NavbarProfile/>  
+      <Outlet/>
+    </>
   )
 
 }
+
+
+
+export default Profile
+

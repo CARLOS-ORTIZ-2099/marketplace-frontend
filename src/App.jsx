@@ -1,22 +1,25 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-
-/* import './App.css' */
-import { Home } from './pages/Home'
-import { ProductDetails } from './pages/ProductDetails'
 import { AuthProvider } from './context/AuthProvider'
-import { Login } from './pages/Login'
-import { Navbar } from './components/Navbar'
-import { Profile } from './pages/Profile'
-import { Cart } from './pages/Cart'
 import { ProductsProvider } from './context/ProductsProvider'
-import { Register } from './pages/Register'
-import { MyPosts } from './pages/MyPosts'
-import { MyFavourites } from './pages/MyFavourites'
-import { FormPost } from './pages/FormPost'
-import { MyProfile } from './pages/MyProfile'
+import { lazy, Suspense } from 'react'
 
 
+const Home = lazy(() => import ('./pages/Home'))
+const ProductDetails = lazy(() => import ('./pages/ProductDetails'))
+const Cart = lazy(() => import ('./pages/Cart'))
+const Profile = lazy(() => import ('./pages/Profile'))
+const MyProfile = lazy(() => import ('./pages/MyProfile'))
+const MyFavourites = lazy(() => import ('./pages/MyFavourites'))
+const MyPosts = lazy(() => import ('./pages/MyPosts'))
+const FormPost = lazy(() => import ('./pages/FormPost'))
+const Login = lazy(() => import ('./pages/Login'))
+const Register = lazy(() => import ('./pages/Register'))
+const Navbar = lazy(() => import ('./components/Navbar'))
+
+
+
+const Loading = () => <div>Loading...</div>;
 
 function App() {
   
@@ -26,6 +29,8 @@ function App() {
     <>
        <AuthProvider>
         <ProductsProvider>
+
+        <Suspense fallback={<Loading/>}>
           <BrowserRouter>
               <Navbar/>
               <Routes>
@@ -47,11 +52,15 @@ function App() {
 
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/register' element={<Register/>}/>
+                <Route path='/editProfile/:id' element={<Register/>}/>
                   
                   
               </Routes>
           </BrowserRouter>
+        </Suspense>
+
         </ProductsProvider>
+
        </AuthProvider>
        
     </>

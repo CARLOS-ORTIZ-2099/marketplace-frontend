@@ -4,7 +4,7 @@ import { Box, Text } from "@chakra-ui/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {faHouse, faCartShopping, faUser} from '@fortawesome/free-solid-svg-icons'
 
-export const Navbar = () => {
+const Navbar = () => {
   const {auth, user} = useAuth() 
    
   return (
@@ -44,3 +44,5 @@ export const Navbar = () => {
   )
 
 }
+
+export  default Navbar

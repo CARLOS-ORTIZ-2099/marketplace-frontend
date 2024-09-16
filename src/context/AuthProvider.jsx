@@ -15,18 +15,41 @@ const AuthContext = createContext() // creando contexto
 
 export const AuthProvider = ({children}) => {
 
-    // estos estados se compartiran globalmente para toda la app
-    const [auth, setAuth] = useState(false) // estado booleano que indica si el usuario esta logueado o no
-    const [user, setUser] = useState({}) // este estado contiene la informacion del usuario
+    const [auth, setAuth] = useState(false) 
+    const [user, setUser] = useState({}) 
     const [errorLogin, setError] = useState({})
     const [errorRegister, setErrorRegister] = useState({})
+    const [updated, setUpdated] = useState(false)
 
-    // cada que se refresque la pagina llamaremos a verifyAuth
     useEffect(() => {
         verifyAuth()
     }, [])
  
     
+    const handlerEditUser = async (body, id) => {
+        try {
+            const {data} = await instance.put(`/auth/updateUser/${id}`, body)
+            alert('editado correctamente')  
+            setUser(data)
+            setUpdated(true)
+        }catch(error) {
+            console.log(error);
+            setErrorRegister(error.response.data)
+            setTimeout(() => setErrorRegister({}), 2000)   
+        }
+    }
+
+    const handlerEditAvatar = async (body, id) => {
+        try {
+            const {data} = await instance.put(`/auth/updateUser/avatar/${id}`, body)
+            console.log(data)
+            setUser({...user, avatar : data.avatar})
+        }catch(error) {
+            console.log(error);
+        }
+    }
+
+
     const handlerRegister = async (body) => {
         try {
             await instance.post(`/auth/register`, body)
@@ -62,11 +85,9 @@ export const AuthProvider = ({children}) => {
 
     const verifyAuth = async() => {
         const cookie = jsCookie.get('token-market')
-        // si la cookie existe consultar
         if(cookie) {    
             try{
                 const {data} = await instance.get(`/auth/verifyToken`) 
-                //console.log(data);
                 setAuth(true)
                 setUser(data.user)
             }catch(error){  
@@ -75,7 +96,20 @@ export const AuthProvider = ({children}) => {
         }   
     }
 
-    const data = {auth, user, errorLogin,errorRegister,  setAuth, handlerLogin, handlerCloseSession, handlerRegister}
+    const data = {
+        auth, 
+        user, 
+        errorLogin,
+        errorRegister,  
+        updated,
+        setAuth, 
+        handlerLogin, 
+        handlerCloseSession, 
+        handlerRegister, 
+        handlerEditUser,
+        setUpdated,
+        handlerEditAvatar
+    }
 
   return (
     <AuthContext.Provider value={data}>

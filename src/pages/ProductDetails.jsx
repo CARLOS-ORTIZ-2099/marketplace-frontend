@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {  useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"
 import { instance } from "../libs/axiosConfig";
 import { useAuth } from "../context/AuthProvider";
@@ -9,14 +9,13 @@ import { ProductData } from "../components/ProductData";
 import {Container } from "@chakra-ui/react";
 import { Loading } from "../components/Loading";
 
-export const ProductDetails = () => {
+ const ProductDetails = () => {
  
     const {id} = useParams()
-    const [quantity, setQuantity] = useState(1)
     const [loading, setLoading] = useState(false)
     const [product, setProduct] = useState(null)
     const {auth} = useAuth()
-    const { carrito, setCarrito, setFavourites } = useProduct()
+    const { carrito, setCarrito } = useProduct()
     const navigate = useNavigate()
  
    useEffect(() => {
@@ -26,17 +25,14 @@ export const ProductDetails = () => {
    const getOneProduct = async () => {
         try {
             const {data} =  await instance.get(`/product/getOneProduct/${id}`)
+            console.log(data)
             setProduct(data.product)
         }catch(error){
             console.log(error)
         }
    }
 
-   const changeQuantityMore = () => setQuantity(previous => previous >= product.quantityMax ? previous : previous+1)
-  
-   const changeQuantityLess = () => setQuantity(previous => previous <= 1 ? previous :  previous-1)
-
-   const addToCart =  async() => { 
+   const addToCart =  async(quantity) => { 
         if(auth) { 
             const itemFound = carrito.find(item => item.product == id || item.product?._id == id)
             if(itemFound && itemFound.quantityItem+quantity > product.quantityMax){
@@ -68,32 +64,9 @@ export const ProductDetails = () => {
         }
    }
 
-   const handleFavourite = async(boolean) => {
-    console.log(boolean);
-    if(!auth){
-        navigate('/login')
-        return
-    }
-    if(boolean){  
-        setFavourites((previous) => {
-            const data = previous.filter((ele) => ele.product._id != product._id)
-            functionFavourite(product._id, {action:'eliminar'})
-            return data
-        })
-    }
-    else {
-        setFavourites((previous) =>{
-            let data = [...previous, {product : {...product}}]  
-            functionFavourite(product._id, {action :'crear'})
-            return data
-        }) 
-    }
-
-   }
-
    const deleteProduct = async(id) => {
-       const confirmDelete = confirm('deseas eliminar este producto '+ id)
-       if(confirmDelete) {
+    const confirmDelete = confirm('deseas eliminar este producto '+ id)
+        if(confirmDelete) {
             try {
             const data = await instance.delete(`/product/deleteProduct/${id}`) 
                 if(data.status == 200) { 
@@ -104,27 +77,9 @@ export const ProductDetails = () => {
                 console.log(error)
                 alert('sucedio un error') 
             }
-      }
-   }
-
-
-   const functionFavourite = useCallback(debounce((idParam, body) => {
-        instance.post(`/user/addToFavorite/${idParam}`, body)
-        .then(data => console.log(data.data))
-   }, 500 ), [] )
-
-   function debounce(cb, delay) { 
-        let time
-        return (id, body) => {
-
-           clearTimeout(time)
-
-           time = setTimeout(() => {
-                cb(id, body)
-            }, delay)
-
         }
    }
+
 
 
    if(!product) return <Loading/>
@@ -136,17 +91,16 @@ export const ProductDetails = () => {
 
         <ProductData 
             product={product} 
-            less={changeQuantityLess} 
-            more={changeQuantityMore}
-            quantity={quantity}
             add={addToCart}
             deleteProduct={deleteProduct}
-            handleFavourite={handleFavourite}
             loading={loading}
         />
 
     </Container>
   )
 }
+
+
+export default ProductDetails
 
 

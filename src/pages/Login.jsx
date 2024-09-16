@@ -6,7 +6,7 @@ import { useFormAuth } from "../hooks/useFormAuth"
 
 const initial = {email :'', password : ''}
 
-export const Login = () => {
+const Login = () => {
 
   const {handlerLogin, auth, errorLogin} = useAuth()  
   const {formData, validateErrors, handlerChange} = useFormAuth(initial)
@@ -60,3 +60,7 @@ export const Login = () => {
     </Box>
   )
 }
+
+
+export default Login
+

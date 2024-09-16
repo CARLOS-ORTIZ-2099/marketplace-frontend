@@ -5,7 +5,7 @@ import { Box } from "@chakra-ui/react"
 import { ProductCard } from "../components/ProductCard"
 import { Loading } from "../components/Loading"
 
-export const MyPosts = () => {
+ const MyPosts = () => {
   const {user, auth} = useAuth()
   const [itemsOfuser, setItemsOfUser] = useState(null)
 
@@ -16,6 +16,7 @@ export const MyPosts = () => {
      const getAllPostUser = async () => {
        try{
         const {data} = await instance.get(`/product/getAllProducts/${user._id}`)
+        console.log(data)
         setItemsOfUser(data.products)
        }catch(error){
         console.log(error)
@@ -39,3 +40,5 @@ export const MyPosts = () => {
     </Box>
   )
 }
+
+export default MyPosts

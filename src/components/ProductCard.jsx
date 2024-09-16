@@ -10,12 +10,12 @@ export const ProductCard = ({product , handleFavourite = null, index = null}) =>
         <Card maxW='sm'>
 
             <CardBody>
-                <Image src={product?.images?.[0].secure_url} 
+                <Image
+                    src={product?.images?.[0].secure_url} 
                     alt='product'
                     borderRadius='lg'
                     height={'200px'}
                     width={'300px'}
-                    loading="lazy"
                 />
 
                 <Stack mt='6' spacing='3'>
