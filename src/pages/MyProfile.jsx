@@ -76,11 +76,10 @@ import { useState } from "react"
           </Button>  
 
           <Button display={'block'} mx={'auto'}colorScheme="teal">
-            <Link to={`/editProfile/${user._id}`}>editar perfil </Link> 
-          </Button> 
+            <Link to={`/profile/editProfile/${user._id}`}>editar perfil </Link> 
+          </Button>  
         </Box> 
    
-
        </Container>
     </Box>
   )

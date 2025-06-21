@@ -18,7 +18,6 @@ import { Loading } from "../components/Loading";
       try{  
         const {data} = await instance.get('/product/getAllProducts') 
         console.log(data);
-        
         setProducts(data.products)  
       }catch(error) {
         console.log(error);

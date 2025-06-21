@@ -47,12 +47,13 @@ function App() {
                   
                   <Route path='/profile/formPage' element={<FormPost/>}/>
                   <Route path='/profile/formPage/:id' element={<FormPost/>}/>
+                  <Route path='/profile/editProfile/:id' element={<Register/>}/>
                 </Route>
                 
 
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/register' element={<Register/>}/>
-                <Route path='/editProfile/:id' element={<Register/>}/>
+                
                   
                   
               </Routes>
